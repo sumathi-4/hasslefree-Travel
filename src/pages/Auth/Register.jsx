@@ -44,11 +44,11 @@ function Register() {
   toast.success("Registration Successful");
 if(role === "admin"){
 
-  window.location.href = "/visa-control-center";
+  navigate("/visa-control-center");
 
 }else{
-
-  window.location.href = "/track-visa";
+navigate("/track-visa");
+  
 }};
 
   return (
@@ -75,7 +75,7 @@ if(role === "admin"){
           Register
         </h2>
 
-        <div className="grid grid-cols-2 gap-4 mt-10">
+        <div className="mt-10">
 
           <button
 
@@ -97,25 +97,7 @@ if(role === "admin"){
 
           </button>
 
-          <button
-
-            onClick={()=>setRole("admin")}
-
-            className={`py-4 rounded-2xl font-semibold
-
-            ${
-              role === "admin"
-
-              ? "bg-yellow-400 text-black"
-
-              : "bg-white/5 text-gray-300"
-            }
-            `}
-          >
-
-            Admin
-
-          </button>
+          
 
         </div>
 
@@ -194,7 +176,7 @@ if(role === "admin"){
             `}
           >
 
-            Register as {role}
+            Register 
 
           </button>
 

@@ -43,11 +43,11 @@ function Login() {
 
   if(role === "admin"){
 
-  window.location.href = "/visa-control-center";
+  navigate("/visa-control-center");
 
 }else{
 
-  window.location.href = "/track-visa";
+  navigate("/track-visa");
 }};
   return (
 
@@ -80,7 +80,7 @@ function Login() {
 
         {/* ROLE */}
 
-        <div className="grid grid-cols-2 gap-4 mt-10">
+        <div className="mt-10">
 
           <button
 
