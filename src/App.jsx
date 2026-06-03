@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter,Routes,Route } from "react-router-dom";
 
 import Home from "./pages/Home";
 
@@ -16,6 +16,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 
 import Loader from "./components/Loader/Loader";
 import ScrollProgress from "./components/ScrollProgress/ScrollProgress";
+import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
 function App() {
 
   const [loading,setLoading] = useState(true);
@@ -54,9 +56,11 @@ function App() {
         <Route path="/about" element={<About />} />
 
         <Route path="/contact" element={<Contact />} />
-
+        
        <Route path="/visa-control-center" element={<AdminDashboard />} />
+        <Route path="/login" element={<Login />} />
 
+<Route path="/register" element={<Register />} />
       </Routes>
 
     </>

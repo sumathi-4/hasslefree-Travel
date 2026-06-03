@@ -169,16 +169,7 @@ function Footer() {
           © 2026 HassleFree Travels. All Rights Reserved.
 
         </div>
-        <button
-
-  onClick={() => setOpenAdmin(true)}
-
-  className="mt-6 text-gray-500 hover:text-yellow-400 duration-300 text-sm tracking-[3px]"
->
-
-  ADMIN ACCESS
-
-</button>
+       
       </div>
 <AdminLogin
   open={openAdmin}

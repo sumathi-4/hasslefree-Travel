@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import AnalyticsCharts from "./AnalyticsCharts";
 
+import toast from "react-hot-toast";
+
 import {
   FaUsers,
   FaCheckCircle,
@@ -12,8 +14,6 @@ import {
   FaSearch,
   FaSignOutAlt,
   FaExclamationTriangle,
-  FaGlobe,
-  FaFileAlt,
   FaTrash,
   FaEdit,
   FaEye,
@@ -23,12 +23,16 @@ import {
   FaTimes,
   FaPassport,
   FaUserTie,
-  FaBuilding
+  FaBuilding,
+  FaUserCircle,
+  FaFilter,
+  FaGlobe,
+  FaFileAlt
 } from "react-icons/fa";
 
 function AdminDashboard() {
 
-  const [activeCategory,setActiveCategory] = useState("Individuals");
+  const [activeCategory,setActiveCategory] = useState("All");
 
   const [search,setSearch] = useState("");
 
@@ -41,6 +45,18 @@ function AdminDashboard() {
   const [showAddForm,setShowAddForm] = useState(false);
 
   const [mobileMenu,setMobileMenu] = useState(false);
+
+  const [editData,setEditData] = useState(null);
+
+  const [formData,setFormData] = useState({
+    name:"",
+    country:"",
+    visaType:"",
+    passport:"",
+    email:"",
+    phone:"",
+    travelDate:""
+  });
 
   const [visaData,setVisaData] = useState({
 
@@ -115,9 +131,37 @@ function AdminDashboard() {
     "Agent Uploaded Documents"
   ];
 
+  const allApplications = useMemo(()=>{
+
+    return [
+
+      ...visaData.Individuals.map((item)=>({
+        ...item,
+        category:"Individuals"
+      })),
+
+      ...visaData.Corporate.map((item)=>({
+        ...item,
+        category:"Corporate"
+      })),
+
+      ...visaData.Agents.map((item)=>({
+        ...item,
+        category:"Agents"
+      }))
+    ];
+
+  },[visaData]);
+
   const filteredApplications = useMemo(()=>{
 
-    return visaData[activeCategory].filter((item)=>{
+    return allApplications.filter((item)=>{
+
+      const matchesCategory =
+
+        activeCategory === "All"
+        ? true
+        : item.category === activeCategory;
 
       const matchesSearch =
 
@@ -135,11 +179,34 @@ function AdminDashboard() {
 
         : item.status === filterStatus;
 
-      return matchesSearch && matchesStatus;
+      return matchesCategory && matchesSearch && matchesStatus;
 
     });
 
-  },[visaData,activeCategory,search,filterStatus]);
+  },[
+    allApplications,
+    activeCategory,
+    search,
+    filterStatus
+  ]);
+
+  const totalApplications = allApplications.length;
+
+  const approvedCount = allApplications.filter(
+    (item)=>item.status === "Approved"
+  ).length;
+
+  const processingCount = allApplications.filter(
+    (item)=>item.status === "Processing"
+  ).length;
+
+  const rejectedCount = allApplications.filter(
+    (item)=>item.status === "Rejected"
+  ).length;
+
+  const pendingCount = allApplications.filter(
+    (item)=>item.status === "Pending"
+  ).length;
 
   const updateStatus = (category,id,newStatus)=>{
 
@@ -156,16 +223,168 @@ function AdminDashboard() {
         : item
       )
     }));
+
+    toast.success(`Status Updated to ${newStatus}`);
   };
 
   const deleteApplication = (category,id)=>{
+
+    const confirmDelete = window.confirm(
+      "Delete this application?"
+    );
+
+    if(!confirmDelete) return;
 
     setVisaData((prev)=>({
 
       ...prev,
 
-      [category]:prev[category].filter((item)=>item.id !== id)
+      [category]:prev[category].filter(
+        (item)=>item.id !== id
+      )
     }));
+
+    toast.success("Application Deleted");
+  };
+
+  const handleAddApplication = ()=>{
+
+    if(
+      !formData.name ||
+      !formData.country ||
+      !formData.visaType
+    ){
+      toast.error("Fill all required fields");
+      return;
+    }
+
+    if(editData){
+
+      setVisaData((prev)=>({
+
+        ...prev,
+
+        [editData.category]:prev[
+          editData.category
+        ].map((item)=>
+
+          item.id === editData.id
+
+          ? {
+              ...item,
+              ...formData
+            }
+
+          : item
+        )
+      }));
+
+      toast.success("Application Updated");
+
+    }else{
+
+      const newApplication = {
+
+        id:`APP${Math.floor(Math.random()*10000)}`,
+
+        ...formData,
+
+        status:"Pending",
+
+        priority:false
+      };
+
+      const targetCategory =
+      activeCategory === "All"
+      ? "Individuals"
+      : activeCategory;
+
+      setVisaData((prev)=>({
+
+        ...prev,
+
+        [targetCategory]:[
+          newApplication,
+          ...prev[targetCategory]
+        ]
+      }));
+
+      toast.success("Application Added");
+    }
+
+    setFormData({
+      name:"",
+      country:"",
+      visaType:"",
+      passport:"",
+      email:"",
+      phone:"",
+      travelDate:""
+    });
+
+    setEditData(null);
+
+    setShowAddForm(false);
+  };
+
+  const downloadApplication = (item)=>{
+
+    const data = `
+
+Application ID: ${item.id}
+
+Applicant: ${item.name}
+
+Category: ${item.category}
+
+Country: ${item.country}
+
+Visa Type: ${item.visaType}
+
+Status: ${item.status}
+
+Passport: ${item.passport}
+
+Email: ${item.email}
+
+Phone: ${item.phone}
+
+Travel Date: ${item.travelDate}
+`;
+
+    const blob = new Blob([data],{
+      type:"text/plain"
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+
+    link.href = url;
+
+    link.download = `${item.name}.txt`;
+
+    link.click();
+
+    toast.success("Downloaded");
+  };
+
+  const getStatusColor = (status)=>{
+
+    switch(status){
+
+      case "Approved":
+        return "bg-green-500/20 text-green-400";
+
+      case "Rejected":
+        return "bg-red-500/20 text-red-400";
+
+      case "Processing":
+        return "bg-yellow-400/20 text-yellow-300";
+
+      default:
+        return "bg-blue-500/20 text-blue-400";
+    }
   };
 
   return (
@@ -223,47 +442,26 @@ function AdminDashboard() {
 
               <div className="space-y-5 mt-16">
 
-                <button
+                {
+                  ["All","Individuals","Corporate","Agents"].map((item)=>(
 
-                  onClick={()=>{
-                    setActiveCategory("Individuals");
-                    setMobileMenu(false);
-                  }}
+                    <button
 
-                  className="w-full bg-blue-600 text-white py-4 rounded-2xl font-semibold"
-                >
+                      key={item}
 
-                  Individuals
+                      onClick={()=>{
+                        setActiveCategory(item);
+                        setMobileMenu(false);
+                      }}
 
-                </button>
+                      className="w-full bg-white/10 hover:bg-blue-600 duration-300 text-white py-4 rounded-2xl font-semibold"
+                    >
 
-                <button
+                      {item}
 
-                  onClick={()=>{
-                    setActiveCategory("Corporate");
-                    setMobileMenu(false);
-                  }}
-
-                  className="w-full bg-yellow-400 text-black py-4 rounded-2xl font-semibold"
-                >
-
-                  Corporate
-
-                </button>
-
-                <button
-
-                  onClick={()=>{
-                    setActiveCategory("Agents");
-                    setMobileMenu(false);
-                  }}
-
-                  className="w-full bg-green-500 text-white py-4 rounded-2xl font-semibold"
-                >
-
-                  Agents
-
-                </button>
+                    </button>
+                  ))
+                }
 
               </div>
 
@@ -295,120 +493,78 @@ function AdminDashboard() {
             </span>
 
           </h1>
+          
+            <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl px-5 py-3">
 
-          <div className="space-y-5 mt-16">
-
-            <button
-
-              onClick={()=>setActiveCategory("Individuals")}
-
-              className={`w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-3 duration-300
-
-              ${
-                activeCategory === "Individuals"
-
-                ? "bg-blue-600 text-white"
-
-                : "bg-white/5 text-gray-300 hover:bg-white/10"
-              }
-              `}
-            >
-
-              <FaPassport />
-
-              Individuals
-
-            </button>
-
-            <button
-
-              onClick={()=>setActiveCategory("Corporate")}
-
-              className={`w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-3 duration-300
-
-              ${
-                activeCategory === "Corporate"
-
-                ? "bg-yellow-400 text-black"
-
-                : "bg-white/5 text-gray-300 hover:bg-white/10"
-              }
-              `}
-            >
-
-              <FaBuilding />
-
-              Corporate
-
-            </button>
-
-            <button
-
-              onClick={()=>setActiveCategory("Agents")}
-
-              className={`w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-3 duration-300
-
-              ${
-                activeCategory === "Agents"
-
-                ? "bg-green-500 text-white"
-
-                : "bg-white/5 text-gray-300 hover:bg-white/10"
-              }
-              `}
-            >
-
-              <FaUserTie />
-
-              Agents
-
-            </button>
-
-          </div>
-
-        </div>
-
-        <div>
-
-          <div className="bg-white/5 border border-white/10 rounded-[30px] p-6">
-
-            <div className="flex items-center gap-4">
-
-              <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-2xl font-bold text-white">
-
-                A
-
-              </div>
+              <FaUserCircle className="text-4xl text-blue-400" />
 
               <div>
 
                 <h3 className="text-white font-semibold">
 
-                  Admin 
+                  Admin
 
                 </h3>
 
                 <p className="text-gray-400 text-sm">
 
-                  Visa Management
+                  Super Admin
 
                 </p>
 
               </div>
-
             </div>
+
+          <div className="space-y-5 mt-16">
+
+            {
+              ["All","Individuals","Corporate","Agents"].map((item)=>(
+
+                <button
+
+                  key={item}
+
+                  onClick={()=>setActiveCategory(item)}
+
+                  className={`w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-3 duration-300
+
+                  ${
+                    activeCategory === item
+
+                    ? "bg-blue-600 text-white"
+
+                    : "bg-white/5 text-gray-300 hover:bg-white/10"
+                  }
+                  `}
+                >
+
+                  {
+                    item === "Individuals"
+
+                    ? <FaPassport />
+
+                    : item === "Corporate"
+
+                    ? <FaBuilding />
+
+                    : item === "Agents"
+
+                    ? <FaUserTie />
+
+                    : <FaUsers />
+                  }
+
+                  {item}
+
+                </button>
+              ))
+            }
 
           </div>
 
-          <button className="w-full mt-6 bg-red-500 hover:bg-red-600 duration-300 text-white py-4 rounded-2xl font-semibold flex items-center justify-center gap-3">
-
-            <FaSignOutAlt />
-
-            Sign Out
-
-          </button>
-
         </div>
+
+        
 
       </aside>
 
@@ -418,7 +574,7 @@ function AdminDashboard() {
 
         {/* TOP */}
 
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
 
           <div className="flex items-center justify-between">
 
@@ -432,7 +588,7 @@ function AdminDashboard() {
 
               <p className="text-gray-400 mt-4 text-lg">
 
-                Manage visa applications professionally.
+                Manage all applicants and visa applications.
 
               </p>
 
@@ -451,7 +607,9 @@ function AdminDashboard() {
 
           </div>
 
-          <div className="flex items-center gap-5">
+          {/* PROFILE + ACTIONS */}
+
+          <div className="flex items-center gap-4 flex-wrap">
 
             <button
 
@@ -466,30 +624,111 @@ function AdminDashboard() {
 
             </button>
 
-            <div
+            <button
 
-              onClick={()=>setShowNotifications(true)}
+              onClick={()=>setShowNotifications(!showNotifications)}
 
-              className="relative w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-white text-xl cursor-pointer"
+              className="relative w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-white text-xl"
             >
 
               <FaBell />
 
               <span className="absolute -top-1 -right-1 bg-red-500 text-xs w-6 h-6 rounded-full flex items-center justify-center">
 
-                5
+                {notifications.length}
 
               </span>
 
-            </div>
+            </button>
+
+
+            <button
+
+              onClick={()=>{
+                toast.success("Signed Out");
+              }}
+
+              className="bg-red-500 hover:bg-red-600 duration-300 text-white px-6 py-4 rounded-2xl font-semibold flex items-center gap-3"
+            >
+
+              <FaSignOutAlt />
+
+              Sign Out
+
+            </button>
 
           </div>
 
         </div>
 
+        {/* NOTIFICATIONS */}
+
+        <AnimatePresence>
+
+          {
+            showNotifications && (
+
+              <motion.div
+
+                initial={{
+                  opacity:0,
+                  y:-20
+                }}
+
+                animate={{
+                  opacity:1,
+                  y:0
+                }}
+
+                exit={{
+                  opacity:0,
+                  y:-20
+                }}
+
+                className="bg-white/5 border border-white/10 rounded-[30px] p-8 mt-8"
+              >
+
+                <div className="flex items-center gap-4 mb-6">
+
+                  <FaBell className="text-yellow-400 text-2xl" />
+
+                  <h2 className="text-2xl font-bold text-white">
+
+                    Notifications
+
+                  </h2>
+
+                </div>
+
+                <div className="space-y-4">
+
+                  {
+                    notifications.map((item,index)=>(
+
+                      <div
+
+                        key={index}
+
+                        className="bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-gray-300"
+                      >
+
+                        {item}
+
+                      </div>
+                    ))
+                  }
+
+                </div>
+
+              </motion.div>
+            )
+          }
+
+        </AnimatePresence>
+
         {/* ANALYTICS */}
 
-        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-8 mt-14">
+        <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-8 mt-14">
 
           <motion.div whileHover={{y:-10}} className="bg-gradient-to-br from-blue-600 to-blue-400 rounded-[35px] p-8 text-white">
 
@@ -497,11 +736,11 @@ function AdminDashboard() {
 
               <div>
 
-                <p>Total Applications</p>
+                <p>Total</p>
 
                 <h2 className="text-5xl font-bold mt-4">
 
-                  1245
+                  {totalApplications}
 
                 </h2>
 
@@ -523,7 +762,7 @@ function AdminDashboard() {
 
                 <h2 className="text-5xl font-bold mt-4">
 
-                  320
+                  {processingCount}
 
                 </h2>
 
@@ -545,7 +784,7 @@ function AdminDashboard() {
 
                 <h2 className="text-5xl font-bold mt-4">
 
-                  860
+                  {approvedCount}
 
                 </h2>
 
@@ -567,7 +806,7 @@ function AdminDashboard() {
 
                 <h2 className="text-5xl font-bold mt-4">
 
-                  65
+                  {rejectedCount}
 
                 </h2>
 
@@ -579,15 +818,37 @@ function AdminDashboard() {
 
           </motion.div>
 
+          <motion.div whileHover={{y:-10}} className="bg-gradient-to-br from-cyan-500 to-blue-500 rounded-[35px] p-8 text-white">
+
+            <div className="flex items-center justify-between">
+
+              <div>
+
+                <p>Pending</p>
+
+                <h2 className="text-5xl font-bold mt-4">
+
+                  {pendingCount}
+
+                </h2>
+
+              </div>
+
+              <FaFileAlt className="text-5xl" />
+
+            </div>
+
+          </motion.div>
+
         </div>
 
         {/* CHARTS */}
 
         <AnalyticsCharts />
 
-        {/* SEARCH */}
+        {/* FILTERS */}
 
-        <div className="grid lg:grid-cols-2 gap-6 mt-14">
+        <div className="grid lg:grid-cols-3 gap-6 mt-14">
 
           <div className="relative">
 
@@ -649,6 +910,18 @@ function AdminDashboard() {
 
           </select>
 
+          <div className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 flex items-center gap-3 text-white">
+
+            <FaFilter />
+
+            <span>
+
+              {filteredApplications.length} Applications Found
+
+            </span>
+
+          </div>
+
         </div>
 
         {/* TABLE */}
@@ -672,6 +945,12 @@ function AdminDashboard() {
                   <th className="p-6">
 
                     Applicant
+
+                  </th>
+
+                  <th className="p-6">
+
+                    Category
 
                   </th>
 
@@ -727,7 +1006,7 @@ function AdminDashboard() {
                       }}
 
                       transition={{
-                        delay:index * 0.1
+                        delay:index * 0.05
                       }}
 
                       className="border-t border-white/5 hover:bg-white/5 duration-300"
@@ -742,6 +1021,12 @@ function AdminDashboard() {
                       <td className="p-6 text-white">
 
                         {item.name}
+
+                      </td>
+
+                      <td className="p-6 text-cyan-400 font-semibold">
+
+                        {item.category}
 
                       </td>
 
@@ -766,13 +1051,13 @@ function AdminDashboard() {
                           onChange={(e)=>
 
                             updateStatus(
-                              activeCategory,
+                              item.category,
                               item.id,
                               e.target.value
                             )
                           }
 
-                          className="bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-white outline-none"
+                          className={`rounded-xl px-4 py-2 outline-none border border-white/10 ${getStatusColor(item.status)}`}
                         >
 
                           <option className="text-black">
@@ -818,13 +1103,32 @@ function AdminDashboard() {
 
                           </button>
 
-                          <button className="w-10 h-10 rounded-full bg-yellow-400/20 text-yellow-400 flex items-center justify-center">
+                          <button
+
+                            onClick={()=>{
+
+                              setEditData(item);
+
+                              setFormData(item);
+
+                              setShowAddForm(true);
+                            }}
+
+                            className="w-10 h-10 rounded-full bg-yellow-400/20 text-yellow-400 flex items-center justify-center"
+                          >
 
                             <FaEdit />
 
                           </button>
 
-                          <button className="w-10 h-10 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center">
+                          <button
+
+                            onClick={()=>
+                              downloadApplication(item)
+                            }
+
+                            className="w-10 h-10 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center"
+                          >
 
                             <FaDownload />
 
@@ -832,7 +1136,12 @@ function AdminDashboard() {
 
                           <button
 
-                            onClick={()=>deleteApplication(activeCategory,item.id)}
+                            onClick={()=>
+                              deleteApplication(
+                                item.category,
+                                item.id
+                              )
+                            }
 
                             className="w-10 h-10 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center"
                           >
@@ -853,7 +1162,7 @@ function AdminDashboard() {
                   <tr>
 
                     <td
-                      colSpan="6"
+                      colSpan="7"
                       className="text-center py-20 text-gray-400 text-xl"
                     >
 
@@ -874,7 +1183,7 @@ function AdminDashboard() {
 
       </main>
 
-      {/* DETAILS MODAL */}
+      {/* VIEW DETAILS */}
 
       <AnimatePresence>
 
@@ -922,7 +1231,9 @@ function AdminDashboard() {
 
                   <button
 
-                    onClick={()=>setSelectedApplication(null)}
+                    onClick={()=>
+                      setSelectedApplication(null)
+                    }
 
                     className="text-white text-3xl"
                   >
@@ -935,101 +1246,26 @@ function AdminDashboard() {
 
                 <div className="grid md:grid-cols-2 gap-8 mt-12">
 
-                  <div>
+                  {
+                    Object.entries(selectedApplication).map(([key,value])=>(
 
-                    <p className="text-gray-400">
+                      <div key={key}>
 
-                      Applicant
+                        <p className="text-gray-400 capitalize">
 
-                    </p>
+                          {key}
 
-                    <h3 className="text-white text-xl font-semibold mt-2">
+                        </p>
 
-                      {selectedApplication.name}
+                        <h3 className="text-white text-xl font-semibold mt-2 break-all">
 
-                    </h3>
+                          {value.toString()}
 
-                  </div>
+                        </h3>
 
-                  <div>
-
-                    <p className="text-gray-400">
-
-                      Passport
-
-                    </p>
-
-                    <h3 className="text-white text-xl font-semibold mt-2">
-
-                      {selectedApplication.passport}
-
-                    </h3>
-
-                  </div>
-
-                  <div>
-
-                    <p className="text-gray-400">
-
-                      Email
-
-                    </p>
-
-                    <h3 className="text-white text-xl font-semibold mt-2">
-
-                      {selectedApplication.email}
-
-                    </h3>
-
-                  </div>
-
-                  <div>
-
-                    <p className="text-gray-400">
-
-                      Phone
-
-                    </p>
-
-                    <h3 className="text-white text-xl font-semibold mt-2">
-
-                      {selectedApplication.phone}
-
-                    </h3>
-
-                  </div>
-
-                  <div>
-
-                    <p className="text-gray-400">
-
-                      Country
-
-                    </p>
-
-                    <h3 className="text-white text-xl font-semibold mt-2">
-
-                      {selectedApplication.country}
-
-                    </h3>
-
-                  </div>
-
-                  <div>
-
-                    <p className="text-gray-400">
-
-                      Travel Date
-
-                    </p>
-
-                    <h3 className="text-white text-xl font-semibold mt-2">
-
-                      {selectedApplication.travelDate}
-
-                    </h3>
-
-                  </div>
+                      </div>
+                    ))
+                  }
 
                 </div>
 
@@ -1038,6 +1274,130 @@ function AdminDashboard() {
             </motion.div>
           )
         }
+
+      </AnimatePresence>
+
+      {/* ADD / EDIT FORM */}
+
+      <AnimatePresence>
+
+        {showAddForm && (
+
+          <motion.div
+
+            initial={{opacity:0}}
+
+            animate={{opacity:1}}
+
+            exit={{opacity:0}}
+
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[999] px-6"
+          >
+
+            <motion.div
+
+              initial={{
+                opacity:0,
+                scale:0.8
+              }}
+
+              animate={{
+                opacity:1,
+                scale:1
+              }}
+
+              exit={{
+                opacity:0,
+                scale:0.8
+              }}
+
+              className="bg-[#0B1120] border border-white/10 rounded-[40px] p-10 w-full max-w-[700px]"
+            >
+
+              <div className="flex items-center justify-between">
+
+                <h2 className="text-4xl font-bold text-white">
+
+                  {
+                    editData
+                    ? "Edit Application"
+                    : "Add Application"
+                  }
+
+                </h2>
+
+                <button
+
+                  onClick={()=>{
+                    setShowAddForm(false);
+                    setEditData(null);
+                  }}
+
+                  className="text-white text-3xl"
+                >
+
+                  ×
+
+                </button>
+
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 mt-10">
+
+                {
+                  [
+                    "name",
+                    "country",
+                    "visaType",
+                    "passport",
+                    "email",
+                    "phone",
+                    "travelDate"
+                  ].map((field)=>(
+
+                    <input
+
+                      key={field}
+
+                      type="text"
+
+                      placeholder={field}
+
+                      value={formData[field]}
+
+                      onChange={(e)=>
+                        setFormData({
+                          ...formData,
+                          [field]:e.target.value
+                        })
+                      }
+
+                      className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none"
+                    />
+                  ))
+                }
+
+              </div>
+
+              <button
+
+                onClick={handleAddApplication}
+
+                className="w-full mt-10 bg-blue-600 hover:bg-blue-700 duration-300 text-white py-4 rounded-2xl font-semibold"
+              >
+
+                {
+                  editData
+                  ? "Update Application"
+                  : "Add Application"
+                }
+
+              </button>
+
+            </motion.div>
+
+          </motion.div>
+        )}
 
       </AnimatePresence>
 
