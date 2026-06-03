@@ -1,5 +1,5 @@
 import Navbar from "../components/Navbar/Navbar";
-import Hero from "../components/Hero/Hero.jsx";
+import Hero from "../components/Hero/Hero";
 import VisaCategories from "../components/Sections/VisaCategories";
 import PopularCountries from "../components/Sections/PopularCountries";
 import WhyChooseUs from "../components/Sections/WhyChooseUs";
