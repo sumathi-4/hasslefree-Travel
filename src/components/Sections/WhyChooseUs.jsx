@@ -43,7 +43,7 @@ function WhyChooseUs() {
 
   return (
 
-    <section className="py-24 bg-[#F8FAFC] overflow-hidden">
+    <section className="py-24 bg-white overflow-hidden">
 
       <div className="max-w-7xl mx-auto px-6">
 
@@ -61,7 +61,7 @@ function WhyChooseUs() {
           className="text-center"
         >
 
-          <h2 className="text-4xl md:text-5xl font-bold text-[#0B1120]">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
 
             Why Choose Us
 
@@ -112,7 +112,7 @@ function WhyChooseUs() {
 
               <div className="relative z-10">
 
-                <div className="w-20 h-20 rounded-full bg-[#0B1120] text-white flex items-center justify-center text-3xl group-hover:bg-yellow-400 group-hover:text-black duration-500">
+                <div className={`w-20 h-20 rounded-full text-white flex items-center justify-center text-3xl group-hover:bg-yellow-400 group-hover:text-black duration-500 ${item.id === 2 ? 'bg-red-500' : 'bg-blue-600'}`}>
 
                   {item.icon}
 
@@ -120,7 +120,7 @@ function WhyChooseUs() {
 
                 {/* Title */}
 
-                <h3 className="text-2xl font-bold mt-8 text-[#0B1120]">
+                <h3 className="text-2xl font-bold mt-8 text-gray-900">
 
                   {item.title}
 

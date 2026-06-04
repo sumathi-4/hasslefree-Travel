@@ -389,7 +389,7 @@ Travel Date: ${item.travelDate}
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-[#020617] via-[#071226] to-[#111827] flex overflow-hidden">
+    <div className="min-h-screen bg-gray-50 flex overflow-hidden">
 
       {/* MOBILE MENU */}
 
@@ -416,12 +416,12 @@ Travel Date: ${item.travelDate}
 
               exit={{x:-300}}
 
-              className="w-[300px] h-full bg-[#0B1120] border-r border-white/10 p-8"
+              className="w-[300px] h-full bg-white border-r border-gray-100 p-8"
             >
 
               <div className="flex items-center justify-between">
 
-                <h2 className="text-3xl font-bold text-white">
+                <h2 className="text-3xl font-bold text-gray-900">
 
                   MENU
 
@@ -431,7 +431,7 @@ Travel Date: ${item.travelDate}
 
                   onClick={()=>setMobileMenu(false)}
 
-                  className="text-white text-3xl"
+                  className="text-gray-900 text-3xl"
                 >
 
                   <FaTimes />
@@ -454,7 +454,7 @@ Travel Date: ${item.travelDate}
                         setMobileMenu(false);
                       }}
 
-                      className="w-full bg-white/10 hover:bg-blue-600 duration-300 text-white py-4 rounded-2xl font-semibold"
+                      className="w-full bg-white/10 hover:bg-blue-600 duration-300 text-gray-900 py-4 rounded-2xl font-semibold"
                     >
 
                       {item}
@@ -474,11 +474,11 @@ Travel Date: ${item.travelDate}
 
       {/* SIDEBAR */}
 
-      <aside className="w-[300px] hidden lg:flex flex-col justify-between bg-white/5 backdrop-blur-xl border-r border-white/10 p-8">
+      <aside className="w-[300px] hidden lg:flex flex-col justify-between bg-white border-r border-gray-100 p-8">
 
         <div>
 
-          <h1 className="text-4xl font-bold text-white">
+          <h1 className="text-4xl font-bold text-gray-900">
 
             <span className="text-blue-600">
 
@@ -494,19 +494,19 @@ Travel Date: ${item.travelDate}
 
           </h1>
           
-            <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl px-5 py-3">
+            <div className="flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-5 py-3">
 
               <FaUserCircle className="text-4xl text-blue-400" />
 
               <div>
 
-                <h3 className="text-white font-semibold">
+                <h3 className="text-gray-900 font-semibold">
 
                   Admin
 
                 </h3>
 
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-500 text-sm">
 
                   Super Admin
 
@@ -531,9 +531,9 @@ Travel Date: ${item.travelDate}
                   ${
                     activeCategory === item
 
-                    ? "bg-blue-600 text-white"
+                    ? "bg-blue-600 text-gray-900"
 
-                    : "bg-white/5 text-gray-300 hover:bg-white/10"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                   }
                   `}
                 >
@@ -580,13 +580,13 @@ Travel Date: ${item.travelDate}
 
             <div>
 
-              <h2 className="text-4xl lg:text-5xl font-bold text-white">
+              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900">
 
                 Visa Control Center
 
               </h2>
 
-              <p className="text-gray-400 mt-4 text-lg">
+              <p className="text-gray-500 mt-4 text-lg">
 
                 Manage all applicants and visa applications.
 
@@ -598,7 +598,7 @@ Travel Date: ${item.travelDate}
 
               onClick={()=>setMobileMenu(true)}
 
-              className="lg:hidden w-14 h-14 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl"
+              className="lg:hidden w-14 h-14 rounded-2xl bg-white/10 text-gray-900 flex items-center justify-center text-2xl"
             >
 
               <FaBars />
@@ -628,7 +628,7 @@ Travel Date: ${item.travelDate}
 
               onClick={()=>setShowNotifications(!showNotifications)}
 
-              className="relative w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-white text-xl"
+              className="relative w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-gray-900 text-xl"
             >
 
               <FaBell />
@@ -685,14 +685,14 @@ Travel Date: ${item.travelDate}
                   y:-20
                 }}
 
-                className="bg-white/5 border border-white/10 rounded-[30px] p-8 mt-8"
+                className="bg-white border border-gray-100 rounded-[30px] p-8 mt-8"
               >
 
                 <div className="flex items-center gap-4 mb-6">
 
                   <FaBell className="text-yellow-400 text-2xl" />
 
-                  <h2 className="text-2xl font-bold text-white">
+                  <h2 className="text-2xl font-bold text-gray-900">
 
                     Notifications
 
@@ -709,7 +709,7 @@ Travel Date: ${item.travelDate}
 
                         key={index}
 
-                        className="bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-gray-300"
+                        className="bg-white border border-gray-100 rounded-2xl px-5 py-4 text-gray-300"
                       >
 
                         {item}
@@ -730,7 +730,7 @@ Travel Date: ${item.travelDate}
 
         <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-8 mt-14">
 
-          <motion.div whileHover={{y:-10}} className="bg-gradient-to-br from-blue-600 to-blue-400 rounded-[35px] p-8 text-white">
+          <motion.div whileHover={{y:-10}} className="bg-gradient-to-br from-blue-600 to-blue-400 rounded-[35px] p-8 text-gray-900">
 
             <div className="flex items-center justify-between">
 
@@ -774,7 +774,7 @@ Travel Date: ${item.travelDate}
 
           </motion.div>
 
-          <motion.div whileHover={{y:-10}} className="bg-gradient-to-br from-green-500 to-emerald-400 rounded-[35px] p-8 text-white">
+          <motion.div whileHover={{y:-10}} className="bg-gradient-to-br from-green-500 to-emerald-400 rounded-[35px] p-8 text-gray-900">
 
             <div className="flex items-center justify-between">
 
@@ -796,7 +796,7 @@ Travel Date: ${item.travelDate}
 
           </motion.div>
 
-          <motion.div whileHover={{y:-10}} className="bg-gradient-to-br from-red-500 to-pink-500 rounded-[35px] p-8 text-white">
+          <motion.div whileHover={{y:-10}} className="bg-gradient-to-br from-red-500 to-pink-500 rounded-[35px] p-8 text-gray-900">
 
             <div className="flex items-center justify-between">
 
@@ -818,7 +818,7 @@ Travel Date: ${item.travelDate}
 
           </motion.div>
 
-          <motion.div whileHover={{y:-10}} className="bg-gradient-to-br from-cyan-500 to-blue-500 rounded-[35px] p-8 text-white">
+          <motion.div whileHover={{y:-10}} className="bg-gradient-to-br from-cyan-500 to-blue-500 rounded-[35px] p-8 text-gray-900">
 
             <div className="flex items-center justify-between">
 
@@ -852,7 +852,7 @@ Travel Date: ${item.travelDate}
 
           <div className="relative">
 
-            <FaSearch className="absolute top-1/2 -translate-y-1/2 left-5 text-gray-400" />
+            <FaSearch className="absolute top-1/2 -translate-y-1/2 left-5 text-gray-500" />
 
             <input
 
@@ -864,7 +864,7 @@ Travel Date: ${item.travelDate}
 
               onChange={(e)=>setSearch(e.target.value)}
 
-              className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 text-white outline-none"
+              className="w-full bg-white border border-gray-100 rounded-2xl pl-14 pr-6 py-4 text-gray-900 outline-none"
             />
 
           </div>
@@ -875,7 +875,7 @@ Travel Date: ${item.travelDate}
 
             onChange={(e)=>setFilterStatus(e.target.value)}
 
-            className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none"
+            className="bg-white border border-gray-100 rounded-2xl px-6 py-4 text-gray-900 outline-none"
           >
 
             <option className="text-black">
@@ -910,7 +910,7 @@ Travel Date: ${item.travelDate}
 
           </select>
 
-          <div className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 flex items-center gap-3 text-white">
+          <div className="bg-white border border-gray-100 rounded-2xl px-6 py-4 flex items-center gap-3 text-gray-900">
 
             <FaFilter />
 
@@ -926,7 +926,7 @@ Travel Date: ${item.travelDate}
 
         {/* TABLE */}
 
-        <div className="bg-white/5 border border-white/10 rounded-[35px] overflow-hidden mt-16">
+        <div className="bg-white border border-gray-100 rounded-[35px] overflow-hidden mt-16">
 
           <div className="overflow-x-auto">
 
@@ -1012,13 +1012,13 @@ Travel Date: ${item.travelDate}
                       className="border-t border-white/5 hover:bg-white/5 duration-300"
                     >
 
-                      <td className="p-6 text-white">
+                      <td className="p-6 text-gray-900">
 
                         {item.id}
 
                       </td>
 
-                      <td className="p-6 text-white">
+                      <td className="p-6 text-gray-900">
 
                         {item.name}
 
@@ -1030,13 +1030,13 @@ Travel Date: ${item.travelDate}
 
                       </td>
 
-                      <td className="p-6 text-white">
+                      <td className="p-6 text-gray-900">
 
                         {item.country}
 
                       </td>
 
-                      <td className="p-6 text-white">
+                      <td className="p-6 text-gray-900">
 
                         {item.visaType}
 
@@ -1163,7 +1163,7 @@ Travel Date: ${item.travelDate}
 
                     <td
                       colSpan="7"
-                      className="text-center py-20 text-gray-400 text-xl"
+                      className="text-center py-20 text-gray-500 text-xl"
                     >
 
                       No Applications Found
@@ -1218,12 +1218,12 @@ Travel Date: ${item.travelDate}
                   scale:0.8
                 }}
 
-                className="bg-[#0B1120] border border-white/10 rounded-[40px] p-10 w-full max-w-[700px]"
+                className="bg-white border border-gray-100 rounded-[40px] p-10 w-full max-w-[700px]"
               >
 
                 <div className="flex items-center justify-between">
 
-                  <h2 className="text-4xl font-bold text-white">
+                  <h2 className="text-4xl font-bold text-gray-900">
 
                     Application Details
 
@@ -1235,7 +1235,7 @@ Travel Date: ${item.travelDate}
                       setSelectedApplication(null)
                     }
 
-                    className="text-white text-3xl"
+                    className="text-gray-900 text-3xl"
                   >
 
                     ×
@@ -1251,13 +1251,13 @@ Travel Date: ${item.travelDate}
 
                       <div key={key}>
 
-                        <p className="text-gray-400 capitalize">
+                        <p className="text-gray-500 capitalize">
 
                           {key}
 
                         </p>
 
-                        <h3 className="text-white text-xl font-semibold mt-2 break-all">
+                        <h3 className="text-gray-900 text-xl font-semibold mt-2 break-all">
 
                           {value.toString()}
 
@@ -1311,12 +1311,12 @@ Travel Date: ${item.travelDate}
                 scale:0.8
               }}
 
-              className="bg-[#0B1120] border border-white/10 rounded-[40px] p-10 w-full max-w-[700px]"
+              className="bg-white border border-gray-100 rounded-[40px] p-10 w-full max-w-[700px]"
             >
 
               <div className="flex items-center justify-between">
 
-                <h2 className="text-4xl font-bold text-white">
+                <h2 className="text-4xl font-bold text-gray-900">
 
                   {
                     editData
@@ -1333,7 +1333,7 @@ Travel Date: ${item.travelDate}
                     setEditData(null);
                   }}
 
-                  className="text-white text-3xl"
+                  className="text-gray-900 text-3xl"
                 >
 
                   ×
@@ -1372,7 +1372,7 @@ Travel Date: ${item.travelDate}
                         })
                       }
 
-                      className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none"
+                      className="bg-white border border-gray-100 rounded-2xl px-6 py-4 text-gray-900 outline-none"
                     />
                   ))
                 }

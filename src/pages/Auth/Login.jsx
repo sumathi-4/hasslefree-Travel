@@ -51,7 +51,7 @@ function Login() {
 }};
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-[#020617] via-[#071226] to-[#111827] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-white flex items-center justify-center px-6">
 
       <motion.div
 
@@ -65,22 +65,22 @@ function Login() {
           y:0
         }}
 
-        className="w-full max-w-[500px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-[40px] p-10"
+        className="w-full max-w-[500px] bg-white shadow-2xl border border-gray-100 rounded-[40px] p-10"
       >
 
-        <h2 className="text-5xl font-bold text-white text-center">
+        <h2 className="text-5xl font-bold text-gray-900 text-center">
 
           Login
         </h2>
 
-        <p className="text-gray-400 text-center mt-4">
+        <p className="text-gray-500 text-center mt-4">
 
           Access your visa portal
         </p>
 
         {/* ROLE */}
 
-        <div className="mt-10">
+        <div className="mt-10 grid grid-cols-2 gap-4">
 
           <button
 
@@ -93,7 +93,7 @@ function Login() {
 
               ? "bg-blue-600 text-white"
 
-              : "bg-white/5 text-gray-300"
+              : "bg-gray-100 text-gray-600"
             }
             `}
           >
@@ -111,9 +111,9 @@ function Login() {
             ${
               role === "admin"
 
-              ? "bg-yellow-400 text-black"
+              ? "bg-red-500 text-white"
 
-              : "bg-white/5 text-gray-300"
+              : "bg-gray-100 text-gray-600"
             }
             `}
           >
@@ -146,7 +146,7 @@ function Login() {
               })
             }
 
-            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white outline-none"
+            className="w-full bg-gray-50 border border-gray-300 rounded-2xl px-6 py-5 text-gray-900 outline-none focus:border-blue-600"
           />
 
           <input
@@ -164,7 +164,7 @@ function Login() {
               })
             }
 
-            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white outline-none"
+            className="w-full bg-gray-50 border border-gray-300 rounded-2xl px-6 py-5 text-gray-900 outline-none focus:border-blue-600"
           />
 
           <button
@@ -176,7 +176,7 @@ function Login() {
             ${
               role === "admin"
 
-              ? "bg-yellow-400 hover:bg-yellow-500 text-black"
+              ? "bg-red-500 hover:bg-red-600 text-white"
 
               : "bg-blue-600 hover:bg-blue-700 text-white"
             }

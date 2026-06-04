@@ -4,7 +4,7 @@ function Loader() {
 
   return (
 
-    <div className="fixed inset-0 bg-[#0B1120] flex items-center justify-center z-[9999]">
+    <div className="fixed inset-0 bg-white flex items-center justify-center z-[9999]">
 
       <div className="text-center">
 
@@ -21,7 +21,7 @@ function Loader() {
             repeatType:"reverse"
           }}
 
-          className="text-5xl md:text-7xl font-bold text-white"
+          className="text-5xl md:text-7xl font-bold text-gray-900"
         >
 
           <span className="text-blue-600">HASSLE</span>
@@ -43,7 +43,7 @@ function Loader() {
             repeatType:"reverse"
           }}
 
-          className="text-gray-400 mt-6 tracking-[6px]"
+          className="text-gray-600 mt-6 tracking-[6px]"
         >
 
           LOADING...

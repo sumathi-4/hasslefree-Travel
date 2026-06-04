@@ -15,9 +15,7 @@ function About() {
 
       <section className="relative h-[50vh] flex items-center justify-center">
 
-        <div className="absolute inset-0 bg-[#0B1120]">
-
-          <div className="absolute inset-0 bg-black/50"></div>
+        <div className="absolute inset-0 bg-white border-b border-gray-100">
 
         </div>
 
@@ -30,14 +28,14 @@ function About() {
 
             transition={{duration:1}}
 
-            className="text-5xl md:text-7xl font-bold text-white"
+            className="text-5xl md:text-7xl font-bold text-gray-900"
           >
 
             About Us
 
           </motion.h1>
 
-          <p className="text-gray-300 mt-6 text-lg">
+          <p className="text-gray-600 mt-6 text-lg">
 
             Hassle-free visa solutions for global travelers.
 
@@ -49,7 +47,7 @@ function About() {
 
       {/* Content */}
 
-      <section className="py-24 bg-[#F8FAFC]">
+      <section className="py-24 bg-white">
 
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
 
@@ -83,7 +81,7 @@ function About() {
             viewport={{once:true}}
           >
 
-            <h2 className="text-5xl font-bold text-[#0B1120] leading-tight">
+            <h2 className="text-5xl font-bold text-gray-900 leading-tight">
 
               We Make Visa Processing Simple
 
@@ -101,7 +99,7 @@ function About() {
 
             </p>
 
-            <button className="mt-10 bg-blue-600 hover:bg-yellow-400 hover:text-black duration-300 text-white px-8 py-4 rounded-full font-semibold">
+            <button className="mt-10 bg-red-500 hover:bg-red-600 duration-300 text-white px-8 py-4 rounded-full font-semibold">
 
               Explore Services
 

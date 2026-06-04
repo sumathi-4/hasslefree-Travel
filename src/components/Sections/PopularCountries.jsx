@@ -40,7 +40,7 @@ function PopularCountries() {
 
   return (
 
-    <section className="bg-[#0B1120] py-24 overflow-hidden">
+    <section className="bg-white py-24 overflow-hidden">
 
       <div className="max-w-7xl mx-auto px-6">
 
@@ -54,13 +54,13 @@ function PopularCountries() {
           className="text-center"
         >
 
-          <h2 className="text-4xl md:text-5xl font-bold text-white">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
 
             Popular Destinations
 
           </h2>
 
-          <p className="text-gray-400 mt-4 text-lg">
+          <p className="text-gray-600 mt-4 text-lg">
 
             Explore top countries and start your visa journey today.
 
@@ -129,7 +129,7 @@ function PopularCountries() {
 
                   </p>
 
-                  <button className="mt-5 bg-yellow-400 hover:bg-blue-600 hover:text-white duration-300 text-black px-5 py-3 rounded-full font-semibold">
+                  <button className="mt-5 bg-red-500 hover:bg-red-600 duration-300 text-white px-5 py-3 rounded-full font-semibold">
 
                     Apply Visa
 

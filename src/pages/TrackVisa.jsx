@@ -68,7 +68,7 @@ function TrackVisa() {
 
       {/* Tracking Section */}
 
-      <section className="py-24 bg-[#F8FAFC]">
+      <section className="py-24 bg-white">
 
         <div className="max-w-6xl mx-auto px-6">
 
@@ -86,7 +86,7 @@ function TrackVisa() {
             className="bg-white rounded-[40px] shadow-2xl p-10"
           >
 
-            <h2 className="text-4xl font-bold text-[#0B1120] text-center">
+            <h2 className="text-4xl font-bold text-gray-900 text-center">
 
               Visa Application Tracking
 
@@ -119,7 +119,7 @@ function TrackVisa() {
             {/* Button */}
 
             <button
-              className="w-full mt-8 bg-blue-600 hover:bg-yellow-400 hover:text-black duration-300 text-white py-4 rounded-xl font-semibold text-lg"
+              className="w-full mt-8 bg-red-500 hover:bg-red-600 duration-300 text-white py-4 rounded-xl font-semibold text-lg"
             >
 
               Track Application
@@ -139,7 +139,7 @@ function TrackVisa() {
 
             viewport={{once:true}}
 
-            className="bg-[#0B1120] rounded-[40px] p-10 mt-16 text-white shadow-2xl"
+            className="bg-blue-600 rounded-[40px] p-10 mt-16 text-white shadow-2xl"
           >
 
             {/* Top */}

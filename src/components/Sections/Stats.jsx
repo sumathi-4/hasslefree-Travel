@@ -32,7 +32,7 @@ function Stats() {
 
   return (
 
-    <section className="py-24 bg-[#0B1120]">
+    <section className="py-24 bg-gray-50">
 
       <div className="max-w-7xl mx-auto px-6">
 
@@ -58,7 +58,7 @@ function Stats() {
                 scale:1.05
               }}
 
-              className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-10 text-center hover:border-yellow-400 duration-500"
+              className="bg-white border border-gray-100 shadow-sm rounded-3xl p-10 text-center hover:border-yellow-400 duration-500"
             >
 
               {/* Number */}
@@ -71,7 +71,7 @@ function Stats() {
 
               {/* Title */}
 
-              <p className="text-gray-300 mt-4 text-lg">
+              <p className="text-gray-600 mt-4 text-lg">
 
                 {item.title}
 

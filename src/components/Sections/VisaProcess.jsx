@@ -43,7 +43,7 @@ function VisaProcess() {
 
   return (
 
-    <section className="py-24 bg-[#F8FAFC] overflow-hidden">
+    <section className="py-24 bg-white overflow-hidden">
 
       <div className="max-w-7xl mx-auto px-6">
 
@@ -61,7 +61,7 @@ function VisaProcess() {
           className="text-center"
         >
 
-          <h2 className="text-4xl md:text-5xl font-bold text-[#0B1120]">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
 
             Visa Process
 
@@ -123,7 +123,7 @@ function VisaProcess() {
 
                 <div className="pt-12 text-center">
 
-                  <h3 className="text-2xl font-bold text-[#0B1120]">
+                  <h3 className="text-2xl font-bold text-gray-900">
 
                     {item.title}
 

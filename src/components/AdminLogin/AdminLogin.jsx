@@ -62,14 +62,14 @@ function AdminLogin({ open, setOpen }) {
 
             transition={{ duration:0.4 }}
 
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0B1120] border border-white/10 rounded-[40px] p-10 w-[95%] max-w-[500px] z-[1000] shadow-2xl"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-100 rounded-[40px] p-10 w-[95%] max-w-[500px] z-[1000] shadow-2xl"
           >
 
             {/* Close */}
 
             <button
               onClick={() => setOpen(false)}
-              className="absolute top-6 right-6 text-white text-2xl"
+              className="absolute top-6 right-6 text-gray-900 text-2xl"
             >
 
               <FaTimes />
@@ -86,13 +86,13 @@ function AdminLogin({ open, setOpen }) {
 
             {/* Title */}
 
-            <h2 className="text-4xl font-bold text-white text-center mt-8">
+            <h2 className="text-4xl font-bold text-gray-900 text-center mt-8">
 
               Admin Access
 
             </h2>
 
-            <p className="text-gray-400 text-center mt-4">
+            <p className="text-gray-600 text-center mt-4">
 
               Secure visa management portal login.
 
@@ -108,13 +108,13 @@ function AdminLogin({ open, setOpen }) {
               <input
                 type="text"
                 placeholder="Admin ID"
-                className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-6 py-4 outline-none"
+                className="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-2xl px-6 py-4 outline-none focus:border-blue-600"
               />
 
               <input
                 type="password"
                 placeholder="Password"
-                className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-6 py-4 outline-none"
+                className="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-2xl px-6 py-4 outline-none focus:border-blue-600"
               />
 
               <button

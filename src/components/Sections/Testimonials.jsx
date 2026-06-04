@@ -32,7 +32,7 @@ function Testimonials() {
 
   return (
 
-    <section className="py-24 bg-[#0B1120] overflow-hidden">
+    <section className="py-24 bg-white overflow-hidden">
 
       <div className="max-w-7xl mx-auto px-6">
 
@@ -50,13 +50,13 @@ function Testimonials() {
           className="text-center"
         >
 
-          <h2 className="text-4xl md:text-5xl font-bold text-white">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
 
             What Our Clients Say
 
           </h2>
 
-          <p className="text-gray-400 mt-4 text-lg">
+          <p className="text-gray-600 mt-4 text-lg">
 
             Trusted by travelers, corporates and agents worldwide.
 
@@ -89,7 +89,7 @@ function Testimonials() {
                 scale:1.03
               }}
 
-              className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 hover:border-yellow-400 duration-500"
+              className="bg-gray-50 border border-gray-100 shadow-sm rounded-3xl p-8 hover:border-yellow-400 duration-500"
             >
 
               {/* Profile */}
@@ -104,13 +104,13 @@ function Testimonials() {
 
                 <div>
 
-                  <h3 className="text-white text-xl font-bold">
+                  <h3 className="text-gray-900 text-xl font-bold">
 
                     {item.name}
 
                   </h3>
 
-                  <p className="text-gray-400">
+                  <p className="text-gray-500">
 
                     {item.role}
 
@@ -122,7 +122,7 @@ function Testimonials() {
 
               {/* Review */}
 
-              <p className="text-gray-300 mt-6 leading-8">
+              <p className="text-gray-700 mt-6 leading-8">
 
                 "{item.review}"
 

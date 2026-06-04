@@ -37,11 +37,9 @@ function Hero() {
             className="text-5xl md:text-7xl font-bold text-white leading-tight"
           >
 
-            Visa Solutions <br />
+            Travel <span className="text-red-500">Hassle</span> <span className="text-yellow-400">Free</span> <br />
 
-            <span className="text-yellow-400">
-              Made Simple
-            </span>
+            We Handle the Rest
 
           </motion.h1>
 
@@ -74,7 +72,7 @@ function Hero() {
 
             </button>
 
-            <button className="border border-white text-white hover:bg-white hover:text-black duration-300 px-8 py-4 rounded-full font-semibold">
+            <button className="bg-red-500 hover:bg-red-600 duration-300 text-white px-8 py-4 rounded-full font-semibold">
 
               Track Visa
 

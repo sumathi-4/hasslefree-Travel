@@ -53,7 +53,7 @@ navigate("/track-visa");
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-[#020617] via-[#071226] to-[#111827] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-white flex items-center justify-center px-6">
 
       <motion.div
 
@@ -67,35 +67,26 @@ navigate("/track-visa");
           y:0
         }}
 
-        className="w-full max-w-[500px] bg-white/5 border border-white/10 backdrop-blur-xl rounded-[40px] p-10"
+        className="w-full max-w-[500px] bg-white shadow-2xl border border-gray-100 rounded-[40px] p-10"
       >
 
-        <h2 className="text-5xl font-bold text-white text-center">
+        <h2 className="text-5xl font-bold text-gray-900 text-center">
 
           Register
         </h2>
 
         <div className="mt-10">
 
-          <button
-
-            onClick={()=>setRole("user")}
-
-            className={`py-4 rounded-2xl font-semibold
-
-            ${
-              role === "user"
-
-              ? "bg-blue-600 text-white"
-
-              : "bg-white/5 text-gray-300"
-            }
-            `}
-          >
-
-            User
-
-          </button>
+         <div className="grid grid-cols-2 gap-4 mt-10">
+  <button
+    onClick={() => setRole("user")}
+    className={`col-start-1 col-end-3 justify-self-center py-4 px-8 rounded-2xl font-semibold
+      ${role === "user" ? "bg-blue-600 text-white" : "bg-white/5 text-gray-300"}
+    `}
+  >
+    User
+  </button>
+</div>
 
           
 
@@ -121,7 +112,7 @@ navigate("/track-visa");
               })
             }
 
-            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white outline-none"
+            className="w-full bg-gray-50 border border-gray-300 rounded-2xl px-6 py-5 text-gray-900 outline-none focus:border-blue-600"
           />
 
           <input
@@ -139,7 +130,7 @@ navigate("/track-visa");
               })
             }
 
-            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white outline-none"
+            className="w-full bg-gray-50 border border-gray-300 rounded-2xl px-6 py-5 text-gray-900 outline-none focus:border-blue-600"
           />
 
           <input
@@ -157,7 +148,7 @@ navigate("/track-visa");
               })
             }
 
-            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white outline-none"
+            className="w-full bg-gray-50 border border-gray-300 rounded-2xl px-6 py-5 text-gray-900 outline-none focus:border-blue-600"
           />
 
           <button
@@ -169,7 +160,7 @@ navigate("/track-visa");
             ${
               role === "admin"
 
-              ? "bg-yellow-400 text-black"
+              ? "bg-red-500 text-white"
 
               : "bg-blue-600 text-white"
             }

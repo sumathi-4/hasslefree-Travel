@@ -49,7 +49,7 @@ function VisaCategories() {
           className="text-center"
         >
 
-          <h2 className="text-4xl md:text-5xl font-bold text-[#0B1120]">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
 
             Visa Categories
 
@@ -107,7 +107,7 @@ function VisaCategories() {
 
                 {/* Title */}
 
-                <h3 className="text-3xl font-bold mt-8 text-[#0B1120]">
+                <h3 className="text-3xl font-bold mt-8 text-gray-900">
 
                   {item.title}
 
@@ -123,7 +123,7 @@ function VisaCategories() {
 
                 {/* Button */}
 
-                <button className="mt-8 bg-[#0B1120] text-white px-6 py-3 rounded-full hover:bg-blue-600 duration-300">
+                <button className="mt-8 bg-red-500 text-white px-6 py-3 rounded-full hover:bg-red-600 duration-300">
 
                   Explore More
 

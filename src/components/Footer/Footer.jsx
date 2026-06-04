@@ -13,7 +13,7 @@ function Footer() {
   const [openAdmin,setOpenAdmin] = useState(false);
   return (
 
-    <footer className="bg-[#0B1120] text-white pt-20 pb-10">
+    <footer className="bg-white text-gray-900 pt-20 pb-10 border-t border-gray-100">
 
       <div className="max-w-7xl mx-auto px-6">
 
@@ -31,7 +31,7 @@ function Footer() {
 
             </h1>
 
-            <p className="text-gray-400 mt-6 leading-7">
+            <p className="text-gray-600 mt-6 leading-7">
 
               Hassle-free visa processing solutions for
               individuals, corporates and travel agents worldwide.
@@ -50,7 +50,7 @@ function Footer() {
 
             </h3>
 
-            <ul className="space-y-4 mt-6 text-gray-400">
+            <ul className="space-y-4 mt-6 text-gray-600">
 
   <Link to="/">
     <li className="hover:text-yellow-400 cursor-pointer duration-300">
@@ -132,25 +132,25 @@ function Footer() {
 
             <div className="flex gap-4 mt-6">
 
-              <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-blue-600 duration-300 flex items-center justify-center cursor-pointer">
+              <div className="w-12 h-12 rounded-full bg-gray-100 hover:bg-blue-600 hover:text-white duration-300 flex items-center justify-center cursor-pointer">
 
                 <FaFacebookF />
 
               </div>
 
-              <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-pink-500 duration-300 flex items-center justify-center cursor-pointer">
+              <div className="w-12 h-12 rounded-full bg-gray-100 hover:bg-pink-500 hover:text-white duration-300 flex items-center justify-center cursor-pointer">
 
                 <FaInstagram />
 
               </div>
 
-              <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-blue-400 duration-300 flex items-center justify-center cursor-pointer">
+              <div className="w-12 h-12 rounded-full bg-gray-100 hover:bg-blue-400 hover:text-white duration-300 flex items-center justify-center cursor-pointer">
 
                 <FaLinkedinIn />
 
               </div>
 
-              <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-green-500 duration-300 flex items-center justify-center cursor-pointer">
+              <div className="w-12 h-12 rounded-full bg-gray-100 hover:bg-green-500 hover:text-white duration-300 flex items-center justify-center cursor-pointer">
 
                 <FaWhatsapp />
 
@@ -164,7 +164,7 @@ function Footer() {
 
         {/* Bottom */}
 
-        <div className="border-t border-white/10 mt-16 pt-8 text-center text-gray-500">
+        <div className="border-t border-gray-200 mt-16 pt-8 text-center text-gray-500">
 
           © 2026 HassleFree Travels. All Rights Reserved.
 

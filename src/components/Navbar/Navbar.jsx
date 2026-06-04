@@ -116,45 +116,51 @@ function Navbar() {
 
         {/* DESKTOP MENU */}
 
-        <ul className="hidden lg:flex items-center gap-8 text-white font-medium">
+        <ul className="hidden lg:flex items-center gap-8 font-semibold text-[17px]">
 
-          <Link to="/">
-            <li className="hover:text-yellow-400 duration-300">
-              Home
-            </li>
-          </Link>
+  <Link to="/">
+    <li className="text-red-500 hover:text-blue-600 duration-300">
+      <span className="text-red-500">Ho</span>
+      <span className="text-yellow-400">me</span>
+    </li>
+  </Link>
 
-          <Link to="/countries">
-            <li className="hover:text-yellow-400 duration-300">
-              Countries
-            </li>
-          </Link>
+  <Link to="/countries">
+    <li className="hover:text-blue-600 duration-300">
+      <span className="text-yellow-400">Coun</span>
+      <span className="text-red-500">tries</span>
+    </li>
+  </Link>
 
-          <Link to="/apply-visa">
-            <li className="hover:text-yellow-400 duration-300">
-              Apply Visa
-            </li>
-          </Link>
+  <Link to="/apply-visa">
+    <li className="hover:text-blue-600 duration-300">
+      <span className="text-red-500">Apply</span>
+      <span className="text-yellow-400">Visa</span>
+    </li>
+  </Link>
 
-          <Link to="/track-visa">
-            <li className="hover:text-yellow-400 duration-300">
-              Track Visa
-            </li>
-          </Link>
+  <Link to="/track-visa">
+    <li className="hover:text-blue-600 duration-300">
+      <span className="text-yellow-400">Track</span>
+      <span className="text-red-500">Visa</span>
+    </li>
+  </Link>
 
-          <Link to="/about">
-            <li className="hover:text-yellow-400 duration-300">
-              About
-            </li>
-          </Link>
+  <Link to="/about">
+    <li className="hover:text-blue-600 duration-300">
+      <span className="text-red-500">Abo</span>
+      <span className="text-yellow-400">ut</span>
+    </li>
+  </Link>
 
-          <Link to="/contact">
-            <li className="hover:text-yellow-400 duration-300">
-              Contact
-            </li>
-          </Link>
+  <Link to="/contact">
+    <li className="hover:text-blue-600 duration-300">
+      <span className="text-yellow-400">Con</span>
+      <span className="text-red-500">tact</span>
+    </li>
+  </Link>
 
-        </ul>
+</ul>
 
         {/* RIGHT SIDE */}
 
@@ -162,7 +168,7 @@ function Navbar() {
 
           <Link to="/apply-visa">
 
-            <button className="bg-blue-600 hover:bg-yellow-400 hover:text-black duration-300 text-white px-6 py-3 rounded-full font-medium">
+            <button className="bg-red-500 hover:bg-red-600 duration-300 text-white px-6 py-3 rounded-full font-medium">
 
               Apply Now
 
@@ -213,7 +219,7 @@ function Navbar() {
                     y:20
                   }}
 
-                  className="absolute top-[70px] right-0 w-[260px] bg-[#0B1120] border border-white/10 rounded-3xl p-4 backdrop-blur-xl shadow-2xl"
+                  className="absolute top-[70px] right-0 w-[260px] bg-white border border-gray-100 rounded-3xl p-4 backdrop-blur-xl shadow-2xl"
                 >
 
                   {!isLoggedIn ? (
@@ -250,15 +256,15 @@ function Navbar() {
 
                     <div>
 
-                      <div className="bg-white/5 rounded-2xl p-5 mb-4">
+                      <div className="bg-gray-50 rounded-2xl p-5 mb-4">
 
-                        <h3 className="text-white text-lg font-semibold">
+                        <h3 className="text-gray-900 text-lg font-semibold">
 
                           Logged In
 
                         </h3>
 
-                        <p className="text-gray-400 mt-1 capitalize">
+                        <p className="text-gray-600 mt-1 capitalize">
 
                           Role : {userRole}
 
@@ -368,14 +374,14 @@ function Navbar() {
 
               transition={{duration:0.4}}
 
-              className="fixed top-0 right-0 w-[300px] h-screen bg-[#0B1120] z-50 p-8 overflow-y-auto"
+              className="fixed top-0 right-0 w-[300px] h-screen bg-white z-50 p-8 overflow-y-auto"
             >
 
               {/* TOP */}
 
               <div className="flex items-center justify-between">
 
-                <h1 className="text-3xl font-bold text-white">
+                <h1 className="text-3xl font-bold text-gray-900">
 
                   <span className="text-blue-600">
 
@@ -393,7 +399,7 @@ function Navbar() {
 
                 <button
                   onClick={()=>setMenu(false)}
-                  className="text-white text-3xl"
+                  className="text-gray-900 text-3xl"
                 >
 
                   <FaTimes />
@@ -404,10 +410,10 @@ function Navbar() {
 
               {/* LINKS */}
 
-              <ul className="flex flex-col gap-8 mt-16 text-white text-lg font-medium">
+              <ul className="flex flex-col gap-8 mt-16 text-gray-900 text-lg font-medium">
 
                 <Link to="/" onClick={()=>setMenu(false)}>
-                  <li className="hover:text-yellow-400 duration-300">
+                  <li className="text-red-500 hover:text-yellow-400 duration-300 font-bold">
                     Home
                   </li>
                 </Link>
@@ -478,15 +484,15 @@ function Navbar() {
 
                   <>
 
-                    <div className="bg-white/5 border border-white/10 rounded-3xl p-5">
+                    <div className="bg-gray-50 border border-gray-100 rounded-3xl p-5">
 
-                      <h3 className="text-white text-xl font-semibold">
+                      <h3 className="text-gray-900 text-xl font-semibold">
 
                         Logged In
 
                       </h3>
 
-                      <p className="text-gray-400 mt-2 capitalize">
+                      <p className="text-gray-600 mt-2 capitalize">
 
                         Role : {userRole}
 

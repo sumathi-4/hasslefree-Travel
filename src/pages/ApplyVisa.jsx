@@ -88,7 +88,7 @@ function ApplyVisa() {
 
             {/* Left Side */}
 
-            <div className="bg-[#0B1120] p-12 text-white flex flex-col justify-center">
+            <div className="bg-blue-600 p-12 text-white flex flex-col justify-center">
 
               <h2 className="text-4xl font-bold leading-tight">
 
@@ -150,7 +150,7 @@ function ApplyVisa() {
 
             <div className="p-12">
 
-              <h2 className="text-3xl font-bold text-[#0B1120]">
+              <h2 className="text-3xl font-bold text-gray-900">
 
                 Visa Application Form
 
@@ -279,7 +279,7 @@ function ApplyVisa() {
                 {/* Button */}
 
                 <button
-                  className="w-full bg-blue-600 hover:bg-yellow-400 hover:text-black duration-300 text-white py-4 rounded-xl font-semibold text-lg"
+                  className="w-full bg-red-500 hover:bg-red-600 duration-300 text-white py-4 rounded-xl font-semibold text-lg"
                 >
 
                   Submit Application

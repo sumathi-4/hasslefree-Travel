@@ -38,7 +38,7 @@ function FAQ() {
 
   return (
 
-    <section className="py-24 bg-[#F8FAFC]">
+    <section className="py-24 bg-gray-50">
 
       <div className="max-w-4xl mx-auto px-6">
 
@@ -56,7 +56,7 @@ function FAQ() {
           className="text-center"
         >
 
-          <h2 className="text-4xl md:text-5xl font-bold text-[#0B1120]">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
 
             Frequently Asked Questions
 
@@ -99,7 +99,7 @@ function FAQ() {
                 className="w-full flex items-center justify-between p-6 text-left"
               >
 
-                <h3 className="text-xl font-semibold text-[#0B1120]">
+                <h3 className="text-xl font-semibold text-gray-900">
 
                   {item.question}
 
@@ -107,7 +107,7 @@ function FAQ() {
 
                 <FaChevronDown
                   className={`duration-300 ${
-                    open === item.id ? "rotate-180" : ""
+                    open === item.id ? "rotate-180 text-red-500" : "text-gray-400"
                   }`}
                 />
 

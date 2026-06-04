@@ -134,7 +134,7 @@ function Countries() {
 
             <div>
 
-              <h2 className="text-4xl font-bold text-[#0B1120]">
+              <h2 className="text-4xl font-bold text-gray-900">
 
                 Popular Visa Destinations
 
@@ -262,7 +262,7 @@ function Countries() {
 
                   {/* Button */}
 
-                  <button className="w-full mt-8 bg-[#0B1120] hover:bg-blue-600 duration-300 text-white py-4 rounded-full font-semibold">
+                  <button className="w-full mt-8 bg-red-500 hover:bg-red-600 duration-300 text-white py-4 rounded-full font-semibold">
 
                     Apply Now
 
