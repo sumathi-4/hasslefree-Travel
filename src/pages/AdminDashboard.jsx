@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 import AnalyticsCharts from "./AnalyticsCharts";
 import toast from "react-hot-toast";
 import {
@@ -27,7 +28,9 @@ import {
   FaCog,
   FaChartBar,
   FaCheck,
-  FaChevronRight
+  FaChevronRight,
+  FaPlane,
+  FaSpinner
 } from "react-icons/fa";
 
 function AdminDashboard() {
@@ -43,6 +46,98 @@ function AdminDashboard() {
   const [editData, setEditData] = useState(null);
   const [trackingSearch, setTrackingSearch] = useState("");
   const [trackedApp, setTrackedApp] = useState(null);
+
+  // New features state
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showApprovedStamp, setShowApprovedStamp] = useState(false);
+  const [isTabLoading, setIsTabLoading] = useState(false);
+  
+  // Mock Users data
+  const [usersData, setUsersData] = useState([
+    { id: 1, name: "Rahul Sharma", email: "rahul@example.com", role: "Client", phone: "+91 98765 43210", status: "Active" },
+    { id: 2, name: "Amit Kumar", email: "amit@example.com", role: "Corporate", phone: "+91 91234 56789", status: "Active" },
+    { id: 3, name: "Priya Mehta", email: "priya@example.com", role: "Agent", phone: "+91 99887 76655", status: "Active" },
+    { id: 4, name: "Sneha Patel", email: "sneha@example.com", role: "Client", phone: "+91 98711 22334", status: "Inactive" },
+    { id: 5, name: "Vikram Singh", email: "vikram@example.com", role: "Corporate", phone: "+91 90000 11122", status: "Active" }
+  ]);
+
+  // Settings & Profile state
+  const [adminProfile, setAdminProfile] = useState(() => {
+    const email = localStorage.getItem("adminEmail") || "admin@hasslefree.com";
+    const name = localStorage.getItem("adminName") || (email ? email.split("@")[0] : "Admin User");
+    const role = localStorage.getItem("adminRole") || "Super Admin";
+    const lastLogin = localStorage.getItem("adminLastLogin") || "Today, 10:30 AM";
+    const ipAddress = localStorage.getItem("adminIpAddress") || "103.21.45.67";
+    const systemStatus = localStorage.getItem("adminSystemStatus") || "System Active";
+    return { name, email, role, lastLogin, ipAddress, systemStatus };
+  });
+
+  const [settingsData, setSettingsData] = useState(() => {
+    const saved = localStorage.getItem("adminSettings");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return {
+          ...parsed,
+          companyLogo: localStorage.getItem("adminCompanyLogo") || parsed.companyLogo || "🌐",
+          adminName: localStorage.getItem("adminName") || parsed.adminName || "Admin User",
+          adminEmail: localStorage.getItem("adminEmail") || parsed.adminEmail || "admin@hasslefree.com",
+          adminRole: localStorage.getItem("adminRole") || parsed.adminRole || "Super Admin",
+          adminLastLogin: localStorage.getItem("adminLastLogin") || parsed.adminLastLogin || "Today, 10:30 AM",
+          adminIpAddress: localStorage.getItem("adminIpAddress") || parsed.adminIpAddress || "103.21.45.67",
+          adminSystemStatus: localStorage.getItem("adminSystemStatus") || parsed.adminSystemStatus || "System Active"
+        };
+      } catch (e) {}
+    }
+    return {
+      companyName: "HassleFree Travel",
+      supportEmail: "support@hasslefree.com",
+      supportPhone: "+91 98765 43210",
+      defaultVisaStatus: "Under Review",
+      timezone: "(GMT+05:30) Asia/Kolkata",
+      emailNotifications: true,
+      statusChangeAlerts: true,
+      newApplicationAlerts: true,
+      documentUploadAlerts: false,
+      themeMode: "Light",
+      companyLogo: localStorage.getItem("adminCompanyLogo") || "🌐",
+      adminName: localStorage.getItem("adminName") || "Admin User",
+      adminEmail: localStorage.getItem("adminEmail") || "admin@hasslefree.com",
+      adminRole: localStorage.getItem("adminRole") || "Super Admin",
+      adminLastLogin: localStorage.getItem("adminLastLogin") || "Today, 10:30 AM",
+      adminIpAddress: localStorage.getItem("adminIpAddress") || "103.21.45.67",
+      adminSystemStatus: localStorage.getItem("adminSystemStatus") || "System Active"
+    };
+  });
+
+  const handleSaveSettings = () => {
+    localStorage.setItem("adminSettings", JSON.stringify(settingsData));
+    localStorage.setItem("adminName", settingsData.adminName);
+    localStorage.setItem("adminEmail", settingsData.adminEmail);
+    localStorage.setItem("adminRole", settingsData.adminRole);
+    localStorage.setItem("adminLastLogin", settingsData.adminLastLogin);
+    localStorage.setItem("adminIpAddress", settingsData.adminIpAddress);
+    localStorage.setItem("adminSystemStatus", settingsData.adminSystemStatus);
+    localStorage.setItem("adminCompanyLogo", settingsData.companyLogo || "🌐");
+    setAdminProfile({
+      name: settingsData.adminName,
+      email: settingsData.adminEmail,
+      role: settingsData.adminRole,
+      lastLogin: settingsData.adminLastLogin,
+      ipAddress: settingsData.adminIpAddress,
+      systemStatus: settingsData.adminSystemStatus
+    });
+    toast.success("Settings saved successfully!");
+  };
+
+  const handleTabChange = (tabId) => {
+    if (activeTab === tabId) return;
+    setIsTabLoading(true);
+    setTimeout(() => {
+      setActiveTab(tabId);
+      setIsTabLoading(false);
+    }, 600); // Wait for airplane loader
+  };
 
   // Individual section states
   const [indSubTab, setIndSubTab] = useState("All");
@@ -74,6 +169,36 @@ function AdminDashboard() {
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  const fetchApplications = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/admin/applications");
+      if (response.data.success) {
+        const apps = response.data.applications;
+        const grouped = {
+          Individuals: apps.filter((a) => a.category === "Individuals"),
+          Corporate: apps.filter((a) => a.category === "Corporate"),
+          Agents: apps.filter((a) => a.category === "Agents")
+        };
+        setVisaData(grouped);
+      }
+    } catch (error) {
+      console.error("Failed to fetch applications:", error);
+      toast.error("Failed to load applications from MongoDB");
+    }
+  };
+
+  const getStatusDotColor = (status) => {
+    if (!status) return "bg-green-500";
+    const s = status.toLowerCase();
+    if (s.includes("active")) return "bg-green-500 animate-pulse";
+    if (s.includes("maintenance")) return "bg-amber-500 animate-pulse";
+    return "bg-gray-400";
+  };
+
+  useEffect(() => {
+    fetchApplications();
   }, []);
 
   // Country Flags Helper
@@ -114,7 +239,24 @@ function AdminDashboard() {
     agencyName: "",
     docType: "",
     pendingReason: "",
+    status: "Pending"
   });
+
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: ""
+  });
+
+  useEffect(() => {
+    if (showAddForm && !editData) {
+      setFormData(prev => ({
+        ...prev,
+        status: settingsData.defaultVisaStatus || "Pending"
+      }));
+    }
+  }, [showAddForm, editData, settingsData.defaultVisaStatus]);
 
   // Rich mock data to represent what's in the image dashboard
   const [visaData, setVisaData] = useState({
@@ -336,14 +478,6 @@ function AdminDashboard() {
     ]
   });
 
-  const notifications = [
-    "Canada Visa Approved - IND1026",
-    "New Corporate Application Added by Infosys Pvt Ltd",
-    "Passport Verification Completed for Rahul Verma",
-    "Embassy Status Updated to Under Review for USA Visa",
-    "Agent Holiday Planners Uploaded Financial Documents"
-  ];
-
   // Helper to map and merge all categories of applications
   const allApplications = useMemo(() => {
     return [
@@ -352,6 +486,22 @@ function AdminDashboard() {
       ...visaData.Agents.map((item) => ({ ...item, category: "Agents" }))
     ];
   }, [visaData]);
+
+  const [notificationsList, setNotificationsList] = useState([]);
+
+  useEffect(() => {
+    if (allApplications && allApplications.length > 0 && notificationsList.length === 0) {
+      setNotificationsList(
+        allApplications.slice(0, 5).map((app, idx) => ({
+          id: `notif-${idx}-${app.id}`,
+          message: `${app.category.slice(0, -1)} Application ${app.id} updated to ${app.status} for ${app.name}`,
+          time: "Just now",
+          appId: app.id,
+          category: app.category
+        }))
+      );
+    }
+  }, [allApplications]);
 
   // Combined search & filter logic
   const filteredApplications = useMemo(() => {
@@ -381,7 +531,6 @@ function AdminDashboard() {
     return ["All", ...new Set(countries)];
   }, [allApplications]);
 
-  // Dynamic subtab counts for different sections, including offsets to preserve design counts
   const getIndividualCounts = useMemo(() => {
     const list = visaData.Individuals;
     const pending = list.filter(a => a.status === "Pending").length;
@@ -390,12 +539,12 @@ function AdminDashboard() {
     const approved = list.filter(a => a.status === "Approved").length;
     const rejected = list.filter(a => a.status === "Rejected").length;
     return {
-      all: 7240 + list.length,
-      pending: 1129 + pending,
-      docReceived: 1339 + docRec,
-      underReview: 1779 + underReview,
-      approved: 2119 + approved,
-      rejected: 884 + rejected
+      all: list.length,
+      pending: pending,
+      docReceived: docRec,
+      underReview: underReview,
+      approved: approved,
+      rejected: rejected
     };
   }, [visaData.Individuals]);
 
@@ -407,12 +556,12 @@ function AdminDashboard() {
     const approved = list.filter(a => a.status === "Approved").length;
     const rejected = list.filter(a => a.status === "Rejected").length;
     return {
-      all: 3117 + list.length,
-      pending: 419 + pending,
-      docReceived: 650 + docRec,
-      underReview: 979 + underReview,
-      approved: 719 + approved,
-      rejected: 349 + rejected
+      all: list.length,
+      pending: pending,
+      docReceived: docRec,
+      underReview: underReview,
+      approved: approved,
+      rejected: rejected
     };
   }, [visaData.Corporate]);
 
@@ -424,12 +573,12 @@ function AdminDashboard() {
     const approved = list.filter(a => a.status === "Approved").length;
     const rejected = list.filter(a => a.status === "Rejected").length;
     return {
-      all: 2172 + list.length,
-      pending: 329 + pending,
-      docReceived: 580 + docRec,
-      underReview: 359 + underReview,
-      approved: 649 + approved,
-      rejected: 254 + rejected
+      all: list.length,
+      pending: pending,
+      docReceived: docRec,
+      underReview: underReview,
+      approved: approved,
+      rejected: rejected
     };
   }, [visaData.Agents]);
 
@@ -438,10 +587,10 @@ function AdminDashboard() {
     const corp = visaData.Corporate.filter(a => a.docType).length;
     const agt = visaData.Agents.filter(a => a.docType).length;
     return {
-      all: 6510 + ind + corp + agt,
-      individual: 3242 + ind,
-      corporate: 2119 + corp,
-      agents: 1155 + agt
+      all: ind + corp + agt,
+      individual: ind,
+      corporate: corp,
+      agents: agt
     };
   }, [visaData]);
 
@@ -451,10 +600,10 @@ function AdminDashboard() {
     const embassyReview = list.filter(a => a.pendingReason?.toLowerCase().includes("embassy")).length;
     const others = list.length - missingDocs - embassyReview;
     return {
-      all: 1427 + list.length,
-      missingDocs: 519 + missingDocs,
-      embassyReview: 619 + embassyReview,
-      others: 289 + (others > 0 ? others : 0)
+      all: list.length,
+      missingDocs: missingDocs,
+      embassyReview: embassyReview,
+      others: others > 0 ? others : 0
     };
   }, [allApplications]);
 
@@ -483,78 +632,147 @@ function AdminDashboard() {
     };
   }, [getIndividualCounts, getCorporateCounts, getAgentCounts]);
 
-  const updateStatus = (category, id, newStatus) => {
-    setVisaData((prev) => ({
-      ...prev,
-      [category]: prev[category].map((item) =>
-        item.id === id ? { ...item, status: newStatus } : item
-      )
-    }));
-    toast.success(`Status updated to ${newStatus}`);
-  };
+  const updateStatus = async (category, id, newStatus) => {
+    let targetCategory = category;
+    if (!targetCategory) {
+      const foundApp = allApplications.find((a) => a.id === id);
+      if (foundApp) {
+        targetCategory = foundApp.category;
+      }
+    }
 
-  const deleteApplication = (category, id) => {
-    if (!window.confirm("Are you sure you want to delete this application?")) return;
-    setVisaData((prev) => ({
-      ...prev,
-      [category]: prev[category].filter((item) => item.id !== id)
-    }));
-    toast.success("Application Deleted");
-  };
-
-  const handleAddApplication = () => {
-    if (!formData.name || !formData.country || !formData.visaType) {
-      toast.error("Please fill in name, country, and visa type.");
+    if (!targetCategory) {
+      toast.error("Application category not found");
       return;
     }
 
-    if (editData) {
-      setVisaData((prev) => ({
-        ...prev,
-        [editData.category]: prev[editData.category].map((item) =>
-          item.id === editData.id ? { ...item, ...formData } : item
-        )
-      }));
-      toast.success("Application Updated");
-    } else {
-      const newApp = {
-        id: `APP${Math.floor(Math.random() * 9000 + 1000)}`,
-        ...formData,
-        status: "Pending",
-        submittedOn: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
-        docType: formData.docType || "Passport Copy",
-        receivedOn: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
-        verifiedBy: "Admin User",
-        pendingReason: "Awaiting Document Review",
-        updatedOn: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
-        priority: false
-      };
-
-      const targetCategory = categoryFilter === "All" ? "Individuals" : categoryFilter;
-      setVisaData((prev) => ({
-        ...prev,
-        [targetCategory]: [newApp, ...prev[targetCategory]]
-      }));
-      toast.success("Application Added Successfully");
+    const application = visaData[targetCategory]?.find((item) => item.id === id);
+    if (!application) {
+      toast.error("Application not found");
+      return;
     }
 
-    setFormData({
-      name: "",
-      country: "",
-      visaType: "",
-      passport: "",
-      email: "",
-      phone: "",
-      travelDate: "",
-      companyName: "",
-      contactPerson: "",
-      agentName: "",
-      agencyName: "",
-      docType: "",
-      pendingReason: "",
-    });
-    setEditData(null);
-    setShowAddForm(false);
+    try {
+      const updatedApp = { ...application, status: newStatus, category: targetCategory };
+      const res = await axios.put(`http://localhost:5000/api/admin/applications/${id}`, updatedApp);
+      
+      if (res.data.success) {
+        if (newStatus === "Approved") {
+          setShowApprovedStamp(true);
+          setTimeout(() => setShowApprovedStamp(false), 2000);
+        }
+        toast.success(`Status updated to ${newStatus}`);
+        
+        // Dynamic notification update
+        const newNotif = {
+          id: `notif-dyn-${Date.now()}`,
+          message: `${targetCategory.slice(0, -1)} Application ${id} updated to ${newStatus} for ${application.name}`,
+          time: "Just now",
+          appId: id,
+          category: targetCategory
+        };
+        setNotificationsList(prev => [newNotif, ...prev]);
+
+        fetchApplications();
+      }
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      toast.error("Failed to update status on server");
+    }
+  };
+
+  const deleteApplication = async (category, id) => {
+    if (!window.confirm("Are you sure you want to delete this application?")) return;
+    try {
+      const res = await axios.delete(`http://localhost:5000/api/admin/applications/${id}`);
+      if (res.data.success) {
+        toast.success("Application Deleted");
+        fetchApplications();
+      }
+    } catch (error) {
+      console.error("Failed to delete application:", error);
+      toast.error("Failed to delete application from server");
+    }
+  };
+
+  const handleAddApplication = async () => {
+    if (!formData.name?.trim()) {
+      toast.error("Applicant Name is required");
+      return;
+    }
+    if (!formData.passport?.trim()) {
+      toast.error("Passport No is required");
+      return;
+    }
+    if (!formData.country?.trim()) {
+      toast.error("Target Country is required");
+      return;
+    }
+    if (!formData.visaType?.trim()) {
+      toast.error("Visa Type is required");
+      return;
+    }
+    if (!formData.email?.trim()) {
+      toast.error("Email is required");
+      return;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email.trim())) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    if (!formData.status) {
+      toast.error("Application Status is required");
+      return;
+    }
+
+    const targetCategory = editData ? editData.category : (categoryFilter === "All" ? "Individuals" : categoryFilter);
+
+    const dataToSend = {
+      ...formData,
+      category: targetCategory,
+      status: formData.status
+    };
+
+    try {
+      if (editData) {
+        const res = await axios.put(`http://localhost:5000/api/admin/applications/${editData.id}`, dataToSend);
+        if (res.data.success) {
+          toast.success("Application Updated");
+          fetchApplications();
+        }
+      } else {
+        const res = await axios.post("http://localhost:5000/api/admin/applications", dataToSend);
+        if (res.data.success) {
+          toast.success("Application Added Successfully");
+          fetchApplications();
+        }
+      }
+
+      setFormData({
+        name: "",
+        country: "",
+        visaType: "",
+        passport: "",
+        email: "",
+        phone: "",
+        travelDate: "",
+        companyName: "",
+        contactPerson: "",
+        agentName: "",
+        agencyName: "",
+        docType: "",
+        pendingReason: "",
+        status: settingsData.defaultVisaStatus || "Pending"
+      });
+      setEditData(null);
+      setShowAddForm(false);
+    } catch (error) {
+      console.error("Failed to save application:", error);
+      toast.error(error.response?.data?.message || "Failed to save application");
+    }
   };
 
   const downloadApplication = (item) => {
@@ -662,7 +880,7 @@ Contact Email: ${item.email}
           whileTap={{ scale: 0.98 }}
           transition={{ type: "spring", stiffness: 300, damping: 15 }}
           className="bg-gradient-to-br from-red-600 via-rose-500 to-red-700 rounded-3xl p-6 shadow-lg shadow-red-500/20 flex items-center justify-between cursor-pointer text-white border border-red-500/10"
-          onClick={() => setActiveTab("all_apps")}
+          onClick={() => handleTabChange("all_apps")}
         >
           <div>
             <span className="text-base font-bold text-red-100 uppercase tracking-wider">Total Applications</span>
@@ -684,7 +902,7 @@ Contact Email: ${item.email}
           className="bg-gradient-to-br from-blue-600 via-sky-500 to-indigo-700 rounded-3xl p-6 shadow-lg shadow-blue-500/20 flex items-center justify-between cursor-pointer text-white border border-blue-500/10"
           onClick={() => {
             setStatusFilter("Approved");
-            setActiveTab("all_apps");
+            handleTabChange("all_apps");
           }}
         >
           <div>
@@ -707,7 +925,7 @@ Contact Email: ${item.email}
           className="bg-gradient-to-br from-emerald-600 via-green-500 to-teal-700 rounded-3xl p-6 shadow-lg shadow-green-500/20 flex items-center justify-between cursor-pointer text-white border border-emerald-500/10"
           onClick={() => {
             setStatusFilter("Pending");
-            setActiveTab("all_apps");
+            handleTabChange("all_apps");
           }}
         >
           <div>
@@ -730,7 +948,7 @@ Contact Email: ${item.email}
           className="bg-gradient-to-br from-amber-400 via-yellow-400 to-yellow-500 rounded-3xl p-6 shadow-lg shadow-yellow-500/10 flex items-center justify-between cursor-pointer text-slate-900 border border-yellow-300/10"
           onClick={() => {
             setStatusFilter("Rejected");
-            setActiveTab("all_apps");
+            handleTabChange("all_apps");
           }}
         >
           <div>
@@ -807,7 +1025,7 @@ Contact Email: ${item.email}
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-bold text-gray-900">Recent Applications</h3>
           <button
-            onClick={() => setActiveTab("all_apps")}
+            onClick={() => handleTabChange("all_apps")}
             className="text-blue-600 hover:text-blue-700 text-sm font-bold flex items-center gap-1"
           >
             <span>View All</span>
@@ -841,7 +1059,7 @@ Contact Email: ${item.email}
                       {item.category}
                     </span>
                   </td>
-                  <td className="py-4 font-medium">{item.country}</td>
+                  <td className="py-4 font-medium"><span className="flex items-center gap-2">{getCountryFlag(item.country)} {item.country}</span></td>
                   <td className="py-4">{item.visaType}</td>
                   <td className="py-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(item.status)}`}>
@@ -1015,7 +1233,7 @@ Contact Email: ${item.email}
                           {item.category}
                         </span>
                       </td>
-                      <td className="py-4 font-semibold">{item.country}</td>
+                      <td className="py-4 font-semibold"><span className="flex items-center gap-2">{getCountryFlag(item.country)} {item.country}</span></td>
                       <td className="py-4">{item.visaType}</td>
                       <td className="py-4">
                         <select
@@ -1912,12 +2130,14 @@ Contact Email: ${item.email}
       <div>
         {/* Header with circular icon & breadcrumbs */}
         <div className="flex items-center gap-4 mt-6">
-          <div className="w-14 h-14 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg shadow-red-500/25">
-            <FaClock className="text-2xl" />
+          <div className="w-12 h-12 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md shadow-red-500/25">
+            <FaFileAlt className="text-[20px]" />
           </div>
-          <div>
-            <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Dashboard &gt; Pending Applications</div>
-            <h2 className="text-2xl font-bold text-gray-900 mt-0.5">Pending Applications</h2>
+          <div className="flex flex-col">
+            <h2 className="text-[22px] font-bold text-[#3B4256] leading-tight mt-0.5">Pending Applications</h2>
+            <div className="text-[11px] font-bold text-gray-400 flex items-center gap-1.5 uppercase mt-1">
+              Dashboard <FaChevronRight size={8} /> Pending Applications
+            </div>
           </div>
         </div>
 
@@ -2079,9 +2299,14 @@ Contact Email: ${item.email}
     const list = allApplications.filter(a => a.status === "Approved");
     return (
       <div>
-        <div className="mt-6">
-          <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Dashboard &gt; Approved Applications</div>
-          <h2 className="text-2xl font-bold text-gray-900 mt-1">Approved Applications</h2>
+        <div className="mt-6 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white shadow-md">
+            <FaCheckCircle className="text-xl" />
+          </div>
+          <div>
+            <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Dashboard &gt; Approved Applications</div>
+            <h2 className="text-2xl font-bold text-gray-900 mt-1">Approved Applications</h2>
+          </div>
         </div>
         <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm mt-8 overflow-x-auto">
           <table className="w-full text-left">
@@ -2100,7 +2325,7 @@ Contact Email: ${item.email}
                 <tr key={item.id} className="text-sm text-gray-700 hover:bg-gray-50/50">
                   <td className="py-4 font-bold text-gray-950">{item.id}</td>
                   <td className="py-4 font-bold text-gray-900">{item.name}</td>
-                  <td className="py-4 font-semibold text-gray-900">{item.country}</td>
+                  <td className="py-4 font-semibold text-gray-900"><span className="flex items-center gap-2">{getCountryFlag(item.country)} {item.country}</span></td>
                   <td className="py-4 font-semibold text-gray-600">{item.visaType}</td>
                   <td className="py-4 text-gray-500 font-semibold">{item.updatedOn || item.submittedOn}</td>
                   <td className="py-4 text-right">
@@ -2144,7 +2369,7 @@ Contact Email: ${item.email}
                 <tr key={item.id} className="text-sm text-gray-700 hover:bg-gray-50/50">
                   <td className="py-4 font-bold text-gray-950">{item.id}</td>
                   <td className="py-4 font-bold text-gray-900">{item.name}</td>
-                  <td className="py-4 font-semibold text-gray-900">{item.country}</td>
+                  <td className="py-4 font-semibold text-gray-900"><span className="flex items-center gap-2">{getCountryFlag(item.country)} {item.country}</span></td>
                   <td className="py-4 font-semibold text-gray-600">{item.visaType}</td>
                   <td className="py-4 text-red-500 font-bold text-xs bg-red-50 px-2 py-1 rounded-xl">{item.pendingReason || "Insufficient Documents"}</td>
                   <td className="py-4 text-right">
@@ -2162,102 +2387,150 @@ Contact Email: ${item.email}
   };
 
   const renderVisaTracking = () => {
-    // A beautiful tracking stepper matching the bottom-right of the image
     return (
-      <div>
-        <div className="mt-6">
-          <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Dashboard &gt; Visa Tracking</div>
-          <h2 className="text-2xl font-bold text-gray-900 mt-1">Visa Tracking</h2>
+      <div className="animate-fade-in">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white shadow-md">
+            <FaGlobe className="text-xl" />
+          </div>
+          <div>
+            <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Dashboard &gt; Visa Tracking</div>
+            <h2 className="text-2xl font-bold text-gray-900 mt-1">Visa Tracking</h2>
+          </div>
         </div>
 
-        <div className="bg-gradient-to-br from-amber-400 via-yellow-400 to-yellow-500 text-slate-900 rounded-3xl p-8 shadow-xl shadow-yellow-500/10 mt-8 max-w-4xl mx-auto border border-yellow-300/25">
-          <form onSubmit={handleTrackingSearch} className="flex gap-4">
-            <input
-              type="text"
-              placeholder="Enter Ref No (e.g. IND1024) or Passport No"
-              value={trackingSearch}
-              onChange={(e) => setTrackingSearch(e.target.value)}
-              className="flex-1 bg-white/90 text-slate-950 placeholder-slate-500 border border-yellow-400/30 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-slate-800 font-bold"
-            />
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+        {/* Tracking Card */}
+        <div className="bg-white border border-gray-100 rounded-3xl p-6 md:p-8 shadow-sm max-w-4xl mx-auto">
+          <form onSubmit={handleTrackingSearch} className="flex gap-4 mb-8">
+            <div className="relative flex-1">
+              <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+                <FaSearch />
+              </span>
+              <input
+                type="text"
+                placeholder="Enter Ref No (e.g. HF1023)"
+                value={trackingSearch}
+                onChange={(e) => setTrackingSearch(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-11 pr-6 py-4 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all placeholder:text-gray-400"
+              />
+            </div>
+            <button
               type="submit"
-              className="bg-slate-900 hover:bg-slate-950 text-white font-bold px-8 py-4 rounded-2xl transition-all duration-200 shadow-md"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-2xl transition-all duration-200 shadow-md flex items-center gap-2 hover:scale-[1.02]"
             >
-              Track
-            </motion.button>
+              Search
+            </button>
           </form>
 
           {trackedApp ? (
-            <div className="mt-12 animate-fade-in">
-              <div className="border-b border-slate-900/10 pb-6 mb-8 flex flex-col md:flex-row justify-between gap-4">
-                <div>
-                  <span className="text-xs text-yellow-950 font-black uppercase tracking-wider opacity-85">Applicant Name</span>
-                  <h3 className="text-2xl font-black text-slate-950 mt-1">{trackedApp.name}</h3>
-                  <p className="text-sm text-slate-800 font-semibold mt-1">Ref ID: {trackedApp.id} | Country: {trackedApp.country}</p>
+            <div className="animate-fade-in">
+              <h3 className="text-lg font-bold text-gray-900 mb-6 border-b border-gray-100 pb-3">Tracking Details</h3>
+              
+              {/* Info grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12 mb-8 text-sm">
+                <div className="flex justify-between items-center pb-2">
+                  <span className="text-gray-400 font-semibold">Ref No:</span>
+                  <span className="text-gray-900 font-bold">{trackedApp.id}</span>
                 </div>
-                <div className="text-left md:text-right">
-                  <span className="text-xs text-yellow-950 font-black uppercase tracking-wider opacity-85">Visa Type</span>
-                  <div className="text-xl font-black text-slate-950 mt-1">{trackedApp.visaType}</div>
-                  <span className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-black bg-slate-950 text-yellow-400 border border-slate-950">
-                    {trackedApp.status}
+                <div className="flex justify-between items-center pb-2">
+                  <span className="text-gray-400 font-semibold">Category:</span>
+                  <span className="text-gray-900 font-bold">{trackedApp.category?.slice(0, -1) || "Individual"}</span>
+                </div>
+                <div className="flex justify-between items-center pb-2">
+                  <span className="text-gray-400 font-semibold">Applicant:</span>
+                  <span className="text-gray-900 font-bold">{trackedApp.name}</span>
+                </div>
+                <div className="flex justify-between items-center pb-2">
+                  <span className="text-gray-400 font-semibold">Country:</span>
+                  <span className="text-gray-900 font-bold flex items-center gap-2">
+                    {getCountryFlag(trackedApp.country)} {trackedApp.country}
                   </span>
                 </div>
               </div>
 
-              {/* Stepper tracking path */}
-              <h4 className="text-xs font-black text-yellow-950 uppercase tracking-wider mb-8 opacity-85">Tracking Progress</h4>
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative px-4">
-                {/* Horizontal progress bar background (desktop) */}
-                <div className="absolute top-[28px] left-[50px] right-[50px] h-1.5 bg-yellow-600/20 rounded-full z-0 hidden md:block" />
-
-                {/* Vertical progress bar background (mobile) */}
-                <div className="absolute top-0 bottom-0 left-[24px] w-1.5 bg-yellow-600/20 rounded-full z-0 block md:hidden" />
+              {/* Stepper matching mockup colors and connections */}
+              <div className="relative flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4 px-2 my-12">
+                {/* Connecting Lines */}
+                <div className="absolute top-[28px] left-[50px] right-[50px] h-1 bg-gray-200 rounded-full z-0 hidden md:block">
+                  <div className="w-full h-full flex">
+                    <div className={`h-full flex-1 ${["Documents Received", "Under Review", "Embassy Processing", "Approved"].includes(trackedApp.status) ? "bg-blue-600" : "bg-gray-200"}`} />
+                    <div className={`h-full flex-1 ${["Under Review", "Embassy Processing", "Approved"].includes(trackedApp.status) ? "bg-amber-500" : "bg-gray-200"}`} />
+                    <div className={`h-full flex-1 ${["Embassy Processing", "Approved"].includes(trackedApp.status) ? "bg-red-500" : "bg-gray-200"}`} />
+                    <div className={`h-full flex-1 ${["Approved"].includes(trackedApp.status) ? "bg-purple-600" : "bg-gray-200"}`} />
+                  </div>
+                </div>
 
                 {/* Steps */}
                 {[
-                  { title: "Submitted", desc: "Application Created", date: trackedApp.submittedOn, active: true },
-                  { title: "Docs Received", desc: "Files Verified", date: trackedApp.receivedOn, active: ["Documents Received", "Under Review", "Approved"].includes(trackedApp.status) },
-                  { title: "Under Review", desc: "Background Check", date: trackedApp.updatedOn, active: ["Under Review", "Approved"].includes(trackedApp.status) },
-                  { title: "Embassy Processing", desc: "Consulate Review", date: "Pending Details", active: ["Approved"].includes(trackedApp.status) },
-                  { title: "Approved", desc: "Visa Printed", date: trackedApp.status === "Approved" ? trackedApp.updatedOn : "Pending Approval", active: trackedApp.status === "Approved" }
+                  {
+                    title: "Submitted",
+                    date: trackedApp.submittedOn || "20 May 2025",
+                    icon: <FaFileAlt size={16} />,
+                    activeColor: "bg-blue-600 text-white shadow-blue-500/20 shadow-lg",
+                    inactiveColor: "bg-gray-100 text-gray-400",
+                    isDone: true
+                  },
+                  {
+                    title: "Documents Received",
+                    date: trackedApp.receivedOn || "22 May 2025",
+                    icon: <FaPassport size={16} />,
+                    activeColor: "bg-blue-600 text-white shadow-blue-500/20 shadow-lg",
+                    inactiveColor: "bg-gray-100 text-gray-400",
+                    isDone: ["Documents Received", "Under Review", "Embassy Processing", "Approved"].includes(trackedApp.status)
+                  },
+                  {
+                    title: "Under Review",
+                    date: trackedApp.updatedOn || "24 May 2025",
+                    icon: <FaSearch size={16} />,
+                    activeColor: "bg-red-500 text-white shadow-red-500/20 shadow-lg",
+                    inactiveColor: "bg-gray-100 text-gray-400",
+                    isDone: ["Under Review", "Embassy Processing", "Approved"].includes(trackedApp.status)
+                  },
+                  {
+                    title: "Embassy Processing",
+                    date: "26 May 2025",
+                    icon: <FaBuilding size={16} />,
+                    activeColor: "bg-purple-600 text-white shadow-purple-500/20 shadow-lg",
+                    inactiveColor: "bg-gray-100 text-gray-400",
+                    isDone: ["Embassy Processing", "Approved"].includes(trackedApp.status)
+                  },
+                  {
+                    title: "Approved",
+                    date: trackedApp.status === "Approved" ? trackedApp.updatedOn : "",
+                    icon: <FaCheckCircle size={16} />,
+                    activeColor: "bg-emerald-600 text-white shadow-emerald-500/20 shadow-lg",
+                    inactiveColor: "bg-gray-100 text-gray-400",
+                    isDone: trackedApp.status === "Approved"
+                  }
                 ].map((step, idx) => (
-                  <div key={idx} className="flex flex-row md:flex-col items-center gap-4 z-10 w-full md:w-auto">
-                    {/* Circle icon indicator */}
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center border-4 font-black text-base transition-all duration-300 ${
-                      step.active
-                        ? "bg-slate-950 border-yellow-200 text-yellow-400"
-                        : "bg-yellow-100 border-yellow-300/30 text-yellow-600"
+                  <div key={idx} className="flex flex-row md:flex-col items-center gap-4 z-10 w-full md:w-auto text-center">
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center border-4 border-white font-black text-base transition-all duration-300 ${
+                      step.isDone ? step.activeColor : step.inactiveColor
                     }`}>
-                      {step.active ? <FaCheck size={14} /> : idx + 1}
+                      {step.icon}
                     </div>
-
-                    {/* Step texts */}
                     <div className="text-left md:text-center mt-2 flex-1 md:flex-initial">
-                      <h5 className="font-extrabold text-sm text-slate-950">{step.title}</h5>
-                      <p className="text-xs text-yellow-950/80 font-medium mt-0.5">{step.desc}</p>
-                      <span className="inline-block text-[10px] bg-slate-950/5 border border-slate-950/10 px-2 py-0.5 rounded-lg text-slate-900 font-bold mt-1.5">
-                        {step.date}
-                      </span>
+                      <h5 className="font-extrabold text-sm text-gray-900">{step.title}</h5>
+                      {step.date && <p className="text-xs text-gray-400 font-semibold mt-1">{step.date}</p>}
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* Remarks Box */}
-              <div className="bg-yellow-50/70 border border-yellow-400/30 rounded-2xl p-5 mt-10 text-sm flex gap-4 items-start shadow-inner">
-                <FaBell className="text-slate-900 text-lg mt-0.5 flex-shrink-0" />
-                <div>
-                  <span className="font-black text-slate-950 block">Status Remarks</span>
-                  <p className="text-slate-800 font-medium mt-1">{trackedApp.pendingReason || "Your application is being processed smoothly. No action required at this time."}</p>
+              <div className="bg-gray-50 border border-gray-100 rounded-2xl p-6 mt-10 text-sm">
+                <span className="font-bold text-gray-900 block mb-2">Remarks / Notes</span>
+                <p className="text-gray-600 font-medium">{trackedApp.pendingReason || "All documents verified successfully."}</p>
+                <div className="text-[10px] text-gray-400 font-bold mt-4">
+                  Last Updated: {trackedApp.updatedOn || "28 May 2025"} by <span className="text-gray-600">{adminProfile.name}</span>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="text-center py-20 text-yellow-950/60">
-              <FaGlobe size={48} className="mx-auto text-yellow-950/30 mb-4 animate-spin-slow" />
-              <p className="text-sm font-bold">Enter a valid Ref ID (e.g. IND1024) above to visualize tracking details.</p>
+            <div className="text-center py-20 text-gray-400">
+              <FaGlobe size={48} className="mx-auto text-gray-200 mb-4 animate-spin-slow" />
+              <p className="text-sm font-semibold">Enter a valid Ref ID (e.g. HF1023) above to visualize tracking details.</p>
             </div>
           )}
         </div>
@@ -2280,43 +2553,81 @@ Contact Email: ${item.email}
   };
 
   const renderClients = () => {
-    const clients = [
-      { name: "Arjun Kumar", email: "arjun@gmail.com", role: "Individual Client", status: "Active", date: "12 May 2026" },
-      { name: "Sarah Connor", email: "sarah.c@techsol.com", role: "Corporate Client", status: "Active", date: "15 May 2026" },
-      { name: "John Smith", email: "john@brighttravel.com", role: "Agent User", status: "Active", date: "18 May 2026" },
-      { name: "Aman Gupta", email: "aman@skyline.com", role: "Agent User", status: "Pending", date: "20 May 2026" }
-    ];
     return (
-      <div>
-        <div className="mt-6">
-          <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Dashboard &gt; Clients / Users</div>
-          <h2 className="text-2xl font-bold text-gray-900 mt-1">Clients / Users</h2>
+      <div className="animate-fade-in">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Clients / Users</h2>
+            <p className="text-sm font-medium text-gray-500 mt-1">Manage portal access and user roles.</p>
+          </div>
+          <button
+            onClick={() => toast.success("Add New User clicked")}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl transition-all shadow-md self-start md:self-auto flex items-center gap-2"
+          >
+            <FaPlus size={12} /> Add New User
+          </button>
         </div>
-        <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm mt-8 overflow-x-auto">
-          <table className="w-full text-left">
+
+        {/* Filters */}
+        <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="flex items-center gap-2 bg-gray-50 px-4 py-2.5 rounded-xl w-full md:w-auto md:flex-1 min-w-[200px] border border-gray-200">
+            <FaSearch className="text-gray-400" />
+            <input type="text" placeholder="Search by name or email..." className="bg-transparent border-none outline-none text-sm w-full font-semibold text-gray-700 placeholder-gray-400" />
+          </div>
+          <div className="flex flex-wrap gap-4 w-full md:w-auto">
+            <select className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-500/20">
+              <option>All Roles</option>
+              <option>Client</option>
+              <option>Corporate</option>
+              <option>Agent</option>
+            </select>
+            <select className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-500/20">
+              <option>All Status</option>
+              <option>Active</option>
+              <option>Inactive</option>
+            </select>
+            <button className="bg-gray-900 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-md hover:bg-gray-800 transition-colors">
+              Filter
+            </button>
+          </div>
+        </div>
+
+        {/* Data Table */}
+        <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm overflow-x-auto">
+          <table className="w-full text-left whitespace-nowrap min-w-[800px]">
             <thead>
-              <tr className="border-b border-gray-100 text-gray-400 text-xs font-bold uppercase">
+              <tr className="border-b border-gray-100 text-gray-400 text-xs font-bold uppercase tracking-wider">
                 <th className="pb-4">Name</th>
                 <th className="pb-4">Email</th>
                 <th className="pb-4">Role</th>
+                <th className="pb-4">Phone</th>
                 <th className="pb-4">Status</th>
-                <th className="pb-4">Registered On</th>
+                <th className="pb-4 text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {clients.map((c, i) => (
-                <tr key={i} className="text-sm text-gray-700 hover:bg-gray-50/50">
-                  <td className="py-4 font-bold text-gray-950">{c.name}</td>
-                  <td className="py-4 text-gray-600 font-semibold">{c.email}</td>
-                  <td className="py-4 text-xs font-bold text-blue-600">{c.role}</td>
+              {usersData.map((user, i) => (
+                <tr key={user.id} className="text-sm text-gray-700 hover:bg-gray-50/50 transition-colors">
+                  <td className="py-4 font-bold text-gray-900 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white flex items-center justify-center text-xs shadow-sm">
+                      {user.name.charAt(0)}
+                    </div>
+                    {user.name}
+                  </td>
+                  <td className="py-4 font-medium text-gray-500">{user.email}</td>
+                  <td className="py-4 font-bold text-blue-600">{user.role}</td>
+                  <td className="py-4 font-medium text-gray-500">{user.phone}</td>
                   <td className="py-4">
-                    <span className={`px-2 py-0.5 rounded text-xs font-bold ${
-                      c.status === "Active" ? "bg-green-50 text-green-600" : "bg-yellow-50 text-yellow-600"
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-wide uppercase ${
+                      user.status === "Active" ? "bg-green-100 text-green-700 border border-green-200" : "bg-red-100 text-red-700 border border-red-200"
                     }`}>
-                      {c.status}
+                      {user.status}
                     </span>
                   </td>
-                  <td className="py-4 text-gray-500 font-semibold">{c.date}</td>
+                  <td className="py-4 text-center">
+                    <button className="text-gray-400 hover:text-blue-600 transition-colors px-2"><FaEdit /></button>
+                    <button className="text-gray-400 hover:text-red-600 transition-colors px-2"><FaTrash /></button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -2327,46 +2638,273 @@ Contact Email: ${item.email}
   };
 
   const renderSettings = () => (
-    <div>
-      <div className="mt-6">
-        <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Dashboard &gt; Settings</div>
-        <h2 className="text-2xl font-bold text-gray-900 mt-1">Settings</h2>
-      </div>
-      <div className="bg-gradient-to-br from-red-600 via-rose-500 to-red-700 text-white border border-red-500/10 rounded-3xl p-8 shadow-xl shadow-red-500/25 mt-8 max-w-2xl">
-        <h3 className="text-xl font-black mb-6 tracking-wide">Profile Settings</h3>
-        <div className="space-y-6">
+    <div className="animate-fade-in">
+      {/* Header */}
+      <div className="bg-white border border-gray-100 rounded-3xl p-6 md:p-8 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <label className="text-xs font-bold text-red-100 uppercase tracking-wider opacity-90">System Name</label>
-            <input 
-              type="text" 
-              defaultValue="HassleFree Visa Management" 
-              className="w-full bg-white/10 text-white placeholder-red-200 border border-white/20 rounded-xl px-4 py-3 text-sm font-semibold mt-1 outline-none focus:ring-2 focus:ring-white/35 transition-all duration-200" 
-            />
+            <h2 className="text-2xl font-bold text-gray-900">General Settings</h2>
+            <p className="text-sm font-medium text-gray-500 mt-1">Manage your portal preferences and information.</p>
           </div>
-          <div>
-            <label className="text-xs font-bold text-red-100 uppercase tracking-wider opacity-90">Notification Email</label>
-            <input 
-              type="email" 
-              defaultValue="admin@hasslefree.com" 
-              className="w-full bg-white/10 text-white placeholder-red-200 border border-white/20 rounded-xl px-4 py-3 text-sm font-semibold mt-1 outline-none focus:ring-2 focus:ring-white/35 transition-all duration-200" 
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-red-100 uppercase tracking-wider opacity-90">Default Processing Time</label>
-            <input 
-              type="text" 
-              defaultValue="14 Business Days" 
-              className="w-full bg-white/10 text-white placeholder-red-200 border border-white/20 rounded-xl px-4 py-3 text-sm font-semibold mt-1 outline-none focus:ring-2 focus:ring-white/35 transition-all duration-200" 
-            />
-          </div>
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => toast.success("Settings saved successfully")}
-            className="bg-white text-red-600 hover:bg-red-50 font-extrabold py-3 px-6 rounded-xl text-sm transition-all duration-200 mt-4 shadow-md"
+          <button
+            onClick={handleSaveSettings}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl transition-all shadow-md self-start md:self-auto"
           >
-            Save Settings
-          </motion.button>
+            Save Changes
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          {/* Left Column - Form Inputs */}
+          <div className="lg:col-span-2 space-y-6">
+            <div>
+              <label className="block text-xs font-bold text-gray-900 mb-2">Company Name</label>
+              <input 
+                type="text" 
+                value={settingsData.companyName}
+                onChange={(e) => setSettingsData({...settingsData, companyName: e.target.value})}
+                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" 
+              />
+            </div>
+            
+            <div>
+              <label className="block text-xs font-bold text-gray-900 mb-2">Company Logo</label>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm text-3xl overflow-hidden">
+                  {settingsData.companyLogo && settingsData.companyLogo.startsWith("data:") ? (
+                    <img src={settingsData.companyLogo} alt="Logo" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{settingsData.companyLogo || "🌐"}</span>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all inline-block text-center hover:scale-[1.02] duration-200">
+                    Upload Custom Image
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            setSettingsData({...settingsData, companyLogo: event.target.result});
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <span className="text-[10px] font-bold text-gray-400 mr-1">Or Preset Emojis:</span>
+                    {["🌐", "✈️", "🗺️", "🛂"].map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        onClick={() => setSettingsData({...settingsData, companyLogo: emoji})}
+                        className={`w-8 h-8 rounded-lg border flex items-center justify-center text-sm transition-all ${settingsData.companyLogo === emoji ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-gray-200 bg-white'}`}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-900 mb-2">Support Email</label>
+              <input 
+                type="email" 
+                value={settingsData.supportEmail}
+                onChange={(e) => setSettingsData({...settingsData, supportEmail: e.target.value})}
+                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" 
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-900 mb-2">Support Phone</label>
+              <input 
+                type="text" 
+                value={settingsData.supportPhone}
+                onChange={(e) => setSettingsData({...settingsData, supportPhone: e.target.value})}
+                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" 
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-gray-900 mb-2">Default Visa Status</label>
+                <select 
+                  value={settingsData.defaultVisaStatus}
+                  onChange={(e) => setSettingsData({...settingsData, defaultVisaStatus: e.target.value})}
+                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all appearance-none cursor-pointer"
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Documents Received">Documents Received</option>
+                  <option value="Under Review">Under Review</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-900 mb-2">Timezone</label>
+                <select 
+                  value={settingsData.timezone}
+                  onChange={(e) => setSettingsData({...settingsData, timezone: e.target.value})}
+                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all appearance-none cursor-pointer"
+                >
+                  <option value="(GMT-11:00) Midway Island">(GMT-11:00) Midway Island</option>
+                  <option value="(GMT-10:00) Hawaii">(GMT-10:00) Hawaii</option>
+                  <option value="(GMT-09:00) Alaska">(GMT-09:00) Alaska</option>
+                  <option value="(GMT-08:00) Pacific Time (US & Canada)">(GMT-08:00) Pacific Time (US & Canada)</option>
+                  <option value="(GMT-07:00) Mountain Time (US & Canada)">(GMT-07:00) Mountain Time (US & Canada)</option>
+                  <option value="(GMT-06:00) Central Time (US & Canada)">(GMT-06:00) Central Time (US & Canada)</option>
+                  <option value="(GMT-05:00) Eastern Time (US & Canada)">(GMT-05:00) Eastern Time (US & Canada)</option>
+                  <option value="(GMT-04:00) Atlantic Time (Canada)">(GMT-04:00) Atlantic Time (Canada)</option>
+                  <option value="(GMT-03:30) Newfoundland">(GMT-03:30) Newfoundland</option>
+                  <option value="(GMT-03:00) Buenos Aires">(GMT-03:00) Buenos Aires</option>
+                  <option value="(GMT-02:00) Mid-Atlantic">(GMT-02:00) Mid-Atlantic</option>
+                  <option value="(GMT-01:00) Azores">(GMT-01:00) Azores</option>
+                  <option value="(GMT+00:00) Greenwich Mean Time : London">(GMT+00:00) Greenwich Mean Time : London</option>
+                  <option value="(GMT+01:00) Central European Time : Berlin">(GMT+01:00) Central European Time : Berlin</option>
+                  <option value="(GMT+02:00) Eastern European Time : Cairo">(GMT+02:00) Eastern European Time : Cairo</option>
+                  <option value="(GMT+03:00) Moscow">(GMT+03:00) Moscow</option>
+                  <option value="(GMT+03:30) Tehran">(GMT+03:30) Tehran</option>
+                  <option value="(GMT+04:00) Abu Dhabi, Muscat">(GMT+04:00) Abu Dhabi, Muscat</option>
+                  <option value="(GMT+04:30) Kabul">(GMT+04:30) Kabul</option>
+                  <option value="(GMT+05:00) Islamabad, Karachi">(GMT+05:00) Islamabad, Karachi</option>
+                  <option value="(GMT+05:30) New Delhi, Mumbai, Kolkata (India)">(GMT+05:30) New Delhi, Mumbai, Kolkata (India)</option>
+                  <option value="(GMT+05:45) Kathmandu">(GMT+05:45) Kathmandu</option>
+                  <option value="(GMT+06:00) Almaty, Dhaka">(GMT+06:00) Almaty, Dhaka</option>
+                  <option value="(GMT+06:30) Yangon (Rangoon)">(GMT+06:30) Yangon (Rangoon)</option>
+                  <option value="(GMT+07:00) Bangkok, Hanoi, Jakarta">(GMT+07:00) Bangkok, Hanoi, Jakarta</option>
+                  <option value="(GMT+08:00) Beijing, Perth, Singapore">(GMT+08:00) Beijing, Perth, Singapore</option>
+                  <option value="(GMT+09:00) Tokyo, Seoul, Yakutsk">(GMT+09:00) Tokyo, Seoul, Yakutsk</option>
+                  <option value="(GMT+09:30) Adelaide">(GMT+09:30) Adelaide</option>
+                  <option value="(GMT+10:00) Eastern Australia, Vladivostok">(GMT+10:00) Eastern Australia, Vladivostok</option>
+                  <option value="(GMT+11:00) Solomon Islands, Magadan">(GMT+11:00) Solomon Islands, Magadan</option>
+                  <option value="(GMT+12:00) Auckland, Wellington">(GMT+12:00) Auckland, Wellington</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Admin Profile Section */}
+            <div className="pt-6 border-t border-gray-100">
+              <h3 className="text-sm font-bold text-gray-900 mb-4">Admin Profile Settings</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-bold text-gray-900 mb-2">Admin Name</label>
+                  <input 
+                    type="text" 
+                    value={settingsData.adminName}
+                    onChange={(e) => setSettingsData({...settingsData, adminName: e.target.value})}
+                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-900 mb-2">Admin Email</label>
+                  <input 
+                    type="email" 
+                    value={settingsData.adminEmail}
+                    onChange={(e) => setSettingsData({...settingsData, adminEmail: e.target.value})}
+                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" 
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <label className="block text-xs font-bold text-gray-900 mb-2">Admin Role</label>
+                  <select 
+                    value={settingsData.adminRole}
+                    onChange={(e) => setSettingsData({...settingsData, adminRole: e.target.value})}
+                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="Super Admin">Super Admin</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Visa Officer">Visa Officer</option>
+                    <option value="Manager">Manager</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-900 mb-2">System Status</label>
+                  <select 
+                    value={settingsData.adminSystemStatus}
+                    onChange={(e) => setSettingsData({...settingsData, adminSystemStatus: e.target.value})}
+                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="System Active">System Active</option>
+                    <option value="Maintenance Mode">Maintenance Mode</option>
+                    <option value="System Offline">System Offline</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <label className="block text-xs font-bold text-gray-900 mb-2">Last Login</label>
+                  <input 
+                    type="text" 
+                    value={settingsData.adminLastLogin}
+                    onChange={(e) => setSettingsData({...settingsData, adminLastLogin: e.target.value})}
+                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-900 mb-2">IP Address</label>
+                  <input 
+                    type="text" 
+                    value={settingsData.adminIpAddress}
+                    onChange={(e) => setSettingsData({...settingsData, adminIpAddress: e.target.value})}
+                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" 
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Toggles & Theme */}
+          <div className="space-y-8 bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
+            <div>
+              <h3 className="text-sm font-bold text-gray-900 mb-6">Other Options</h3>
+              <div className="space-y-5">
+                {[
+                  { id: "emailNotifications", label: "Email Notifications" },
+                  { id: "statusChangeAlerts", label: "Status Change Alerts" },
+                  { id: "newApplicationAlerts", label: "New Application Alerts" },
+                  { id: "documentUploadAlerts", label: "Document Upload Alerts" }
+                ].map((toggle) => (
+                  <div key={toggle.id} className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-gray-700">{toggle.label}</span>
+                    <button
+                      onClick={() => setSettingsData({...settingsData, [toggle.id]: !settingsData[toggle.id]})}
+                      className={`w-11 h-6 rounded-full relative transition-colors duration-200 ease-in-out focus:outline-none ${settingsData[toggle.id] ? 'bg-blue-600' : 'bg-gray-200'}`}
+                    >
+                      <span className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 ease-in-out ${settingsData[toggle.id] ? 'transform translate-x-5' : ''}`} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-gray-200">
+              <h3 className="text-sm font-bold text-gray-900 mb-4">Theme Mode</h3>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setSettingsData({...settingsData, themeMode: "Light"})}
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all ${settingsData.themeMode === "Light" ? "bg-blue-50 text-blue-600 border border-blue-200 shadow-sm" : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50"}`}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                  Light
+                </button>
+                <button 
+                  onClick={() => setSettingsData({...settingsData, themeMode: "Dark"})}
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all ${settingsData.themeMode === "Dark" ? "bg-gray-900 text-white shadow-sm" : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50"}`}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                  Dark
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2374,6 +2912,54 @@ Contact Email: ${item.email}
 
   return (
     <div className="min-h-screen bg-gray-50/50 flex overflow-hidden">
+      {/* Global Animations */}
+      <AnimatePresence>
+        {isTabLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-white/70 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="relative w-24 h-24 flex items-center justify-center text-blue-600 drop-shadow-2xl"
+            >
+              {/* Outer spinning dash ring */}
+              <div className="absolute inset-0 rounded-full border-4 border-dashed border-blue-600/30 animate-spin" style={{ animationDuration: "3s" }} />
+              {/* Inner fast spinner */}
+              <div className="absolute w-16 h-16 rounded-full border-4 border-t-blue-600 border-r-transparent border-b-transparent border-l-transparent animate-spin" />
+              {/* Revolving flying airplane icon */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                className="absolute inset-0 flex items-start justify-center"
+              >
+                <FaPlane className="text-blue-600 text-xl transform -rotate-45 mt-[-10px]" />
+              </motion.div>
+              {/* Center spinning core */}
+              <FaSpinner className="text-blue-600/40 text-2xl animate-spin" />
+            </motion.div>
+          </motion.div>
+        )}
+
+        {showApprovedStamp && (
+          <motion.div
+            initial={{ opacity: 0, scale: 4, rotate: -20 }}
+            animate={{ opacity: 1, scale: 1, rotate: -10 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ type: "spring", stiffness: 150, damping: 15 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none"
+          >
+            <div className="border-[16px] border-red-600 rounded-3xl px-16 py-8 text-red-600 font-black text-7xl md:text-8xl tracking-widest uppercase opacity-80 mix-blend-multiply drop-shadow-2xl text-center transform shadow-red-500/50 shadow-2xl">
+              PASSPORT<br/>APPROVED
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* MOBILE NAV DRAWER */}
       <AnimatePresence>
         {mobileMenu && (
@@ -2405,7 +2991,7 @@ Contact Email: ${item.email}
                     <button
                       key={item.id}
                       onClick={() => {
-                        setActiveTab(item.id);
+                        handleTabChange(item.id);
                         setMobileMenu(false);
                       }}
                       className={`w-full py-3 px-4 rounded-xl text-sm font-bold flex items-center gap-3 transition-all duration-200 ${
@@ -2438,17 +3024,26 @@ Contact Email: ${item.email}
       </AnimatePresence>
 
       {/* DESKTOP SIDEBAR */}
-      <aside className="w-[300px] hidden lg:flex flex-col justify-between bg-white border-r border-gray-100 p-6 flex-shrink-0">
+      <aside className={`w-[300px] hidden lg:flex flex-col justify-between p-6 flex-shrink-0 border-r transition-all duration-300 ${
+        settingsData.themeMode === "Dark" ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-100 text-gray-900"
+      }`}>
         <div>
           {/* Logo Header */}
-          <div className="pb-6 border-b border-gray-50">
-            <h1 className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
-              <span className="text-blue-600">HASSLE</span>
-              <span className="text-yellow-500">FREE</span>
-            </h1>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">
-              Visa Management System
-            </p>
+          <div className="pb-6 border-b border-gray-50 flex items-center gap-3">
+            {settingsData.companyLogo && settingsData.companyLogo.startsWith("data:") ? (
+              <img src={settingsData.companyLogo} alt="Logo" className="w-10 h-10 rounded-xl object-cover shrink-0" />
+            ) : (
+              <span className="text-3xl shrink-0">{settingsData.companyLogo || "🌐"}</span>
+            )}
+            <div>
+              <h1 className="text-xl font-black tracking-tight flex items-center gap-1">
+                <span className="text-blue-600">HASSLE</span>
+                <span className={settingsData.themeMode === "Dark" ? "text-yellow-400" : "text-yellow-500"}>FREE</span>
+              </h1>
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">
+                Visa Management System
+              </p>
+            </div>
           </div>
 
           {/* Sidebar Menu Items */}
@@ -2457,17 +3052,19 @@ Contact Email: ${item.email}
               <button
                 key={item.id}
                 onClick={() => {
-                  setActiveTab(item.id);
+                  handleTabChange(item.id);
                   // Reset status filters on click
                   if (item.id === "all_apps") setStatusFilter("All");
                 }}
                 className={`w-full py-3.5 px-4 rounded-xl text-base font-bold flex items-center gap-3 transition-all duration-200 ${
                   activeTab === item.id
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-600/15"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                    : settingsData.themeMode === "Dark"
+                      ? "text-slate-400 hover:bg-slate-800 hover:text-white"
+                      : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
                 }`}
               >
-                <item.icon size={20} className={activeTab === item.id ? "text-white" : "text-gray-400"} />
+                <item.icon size={20} className={activeTab === item.id ? "text-white" : settingsData.themeMode === "Dark" ? "text-slate-400" : "text-gray-400"} />
                 <span>{item.label}</span>
               </button>
             ))}
@@ -2479,7 +3076,11 @@ Contact Email: ${item.email}
           onClick={() => {
             toast.success("Signed Out Successfully");
           }}
-          className="w-full py-3.5 px-4 rounded-xl text-base font-bold flex items-center gap-3 transition-all duration-200 text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 mt-8"
+          className={`w-full py-3.5 px-4 rounded-xl text-base font-bold flex items-center gap-3 transition-all duration-200 border mt-8 ${
+            settingsData.themeMode === "Dark"
+              ? "text-red-400 hover:bg-red-950/20 border-transparent hover:border-red-900/50"
+              : "text-red-600 hover:bg-red-50 border-transparent hover:border-red-100"
+          }`}
         >
           <FaSignOutAlt size={20} className="text-red-500" />
           <span>Logout</span>
@@ -2489,7 +3090,9 @@ Contact Email: ${item.email}
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* TOP BAR / HEADER */}
-        <header className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between flex-shrink-0 z-10 shadow-sm">
+        <header className={`px-6 py-4 flex items-center justify-between flex-shrink-0 z-10 shadow-sm border-b transition-all duration-300 ${
+          settingsData.themeMode === "Dark" ? "bg-slate-800 border-slate-700 text-white" : "bg-white border-gray-100 text-gray-900"
+        }`}>
           {/* Mobile Menu trigger & Search */}
           <div className="flex items-center gap-4 flex-1">
             <button
@@ -2529,7 +3132,7 @@ Contact Email: ${item.email}
               >
                 <FaBell />
                 <span className="absolute top-1.5 right-1.5 bg-red-500 text-white text-[9px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white">
-                  {notifications.length}
+                  {notificationsList.length}
                 </span>
               </button>
 
@@ -2541,13 +3144,51 @@ Contact Email: ${item.email}
                     exit={{ opacity: 0, y: 15 }}
                     className="absolute right-0 mt-3 w-80 bg-white border border-gray-100 rounded-2xl shadow-xl p-4 z-[99]"
                   >
-                    <h4 className="font-bold text-gray-900 text-sm mb-3">Notifications</h4>
-                    <div className="space-y-2 max-h-60 overflow-y-auto">
-                      {notifications.map((n, i) => (
-                        <div key={i} className="text-xs text-gray-600 bg-gray-50 p-2.5 rounded-xl border border-gray-100/50">
-                          {n}
-                        </div>
-                      ))}
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="font-bold text-gray-900 text-sm">Notifications</h4>
+                      {notificationsList.length > 0 && (
+                        <button 
+                          onClick={() => setNotificationsList([])}
+                          className="text-[10px] font-bold text-red-500 hover:underline"
+                        >
+                          Clear All
+                        </button>
+                      )}
+                    </div>
+                    <div className="space-y-1 max-h-[300px] overflow-y-auto">
+                      {notificationsList.length === 0 ? (
+                        <div className="p-4 text-center text-sm text-gray-500 font-semibold">No recent updates</div>
+                      ) : (
+                        notificationsList.map((notif) => (
+                          <div 
+                            key={notif.id} 
+                            className="text-xs text-gray-700 bg-white hover:bg-blue-50 p-3 rounded-xl border border-transparent hover:border-blue-100 transition-colors flex gap-3 items-center justify-between group"
+                          >
+                            <div
+                              onClick={() => { setShowNotifications(false); handleTabChange("all_apps"); }}
+                              className="flex gap-3 items-start cursor-pointer flex-1"
+                            >
+                              <div className="mt-0.5 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                                <FaBell size={10} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-bold mb-1 leading-snug break-words text-gray-800">{notif.message}</p>
+                                <p className="text-[10px] text-gray-400 font-semibold">{notif.time}</p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setNotificationsList(prev => prev.filter(item => item.id !== notif.id));
+                              }}
+                              className="text-gray-300 hover:text-red-500 p-1.5 rounded transition-colors self-center opacity-0 group-hover:opacity-100 focus:opacity-100 shrink-0"
+                              title="Delete notification"
+                            >
+                              <FaTrash size={10} />
+                            </button>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </motion.div>
                 )}
@@ -2555,18 +3196,82 @@ Contact Email: ${item.email}
             </div>
 
             {/* User Profile */}
-            <div className="flex items-center gap-3 pl-3 border-l border-gray-100">
-              <FaUserCircle className="text-4xl text-blue-600 hover:text-blue-700 hover:scale-105 transition-all duration-200 cursor-pointer" />
-              <div className="hidden sm:block">
-                <div className="text-xs font-bold text-gray-900">Admin User</div>
-                <div className="text-[10px] text-gray-400 font-semibold">Super Admin</div>
+            <div className="relative border-l border-gray-100 pl-4">
+              <div
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="flex items-center gap-3 cursor-pointer group"
+              >
+                <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-105 transition-all">
+                  {adminProfile.name?.charAt(0).toUpperCase() || "A"}
+                  <span className={`absolute bottom-0 right-0 w-3 h-3 border-2 border-white rounded-full ${getStatusDotColor(adminProfile.systemStatus)}`}></span>
+                </div>
+                <div className="hidden sm:block">
+                  <div className="text-xs font-bold text-gray-900 capitalize">{adminProfile.name}</div>
+                  <div className="text-[10px] text-gray-400 font-semibold">{adminProfile.role}</div>
+                </div>
               </div>
+
+              {/* Dropdown Menu */}
+              <AnimatePresence>
+                {showProfileMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute right-0 mt-3 w-64 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 overflow-hidden"
+                  >
+                    <div className="p-4 border-b border-gray-100 flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white font-bold text-xl shadow-md">
+                        {adminProfile.name?.charAt(0).toUpperCase() || "A"}
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-900 capitalize">{adminProfile.name}</div>
+                        <div className="text-[10px] text-gray-400 font-semibold">{adminProfile.role}</div>
+                        <div className="text-[10px] text-gray-400">{adminProfile.email}</div>
+                      </div>
+                    </div>
+                    <div className="p-4 border-b border-gray-100 space-y-2 text-xs">
+                      <div className="flex justify-between">
+                        <span className="font-bold text-gray-700">Last Login</span>
+                        <span className="text-gray-500 font-medium">{adminProfile.lastLogin}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-bold text-gray-700">IP Address</span>
+                        <span className="text-gray-500 font-medium">{adminProfile.ipAddress}</span>
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="font-bold text-gray-700">Status</span>
+                        <span className="text-gray-500 font-medium flex items-center gap-1.5">
+                          <span className={`w-2 h-2 rounded-full ${adminProfile.systemStatus.toLowerCase().includes("active") ? "bg-green-500" : "bg-red-500"}`}></span> 
+                          {adminProfile.systemStatus}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-2">
+                      <button onClick={() => { handleTabChange("settings"); setShowProfileMenu(false); }} className="w-full text-left px-4 py-2.5 hover:bg-gray-50 rounded-xl text-sm font-semibold text-gray-700 flex items-center gap-3 transition-colors">
+                        <FaUserCircle className="text-gray-400" /> My Profile
+                      </button>
+                      <button onClick={() => { handleTabChange("settings"); setShowProfileMenu(false); }} className="w-full text-left px-4 py-2.5 hover:bg-gray-50 rounded-xl text-sm font-semibold text-gray-700 flex items-center gap-3 transition-colors">
+                        <FaCog className="text-gray-400" /> Settings
+                      </button>
+                      <button onClick={() => { setShowPasswordModal(true); setShowProfileMenu(false); }} className="w-full text-left px-4 py-2.5 hover:bg-gray-50 rounded-xl text-sm font-semibold text-gray-700 flex items-center gap-3 transition-colors">
+                        <FaCheckCircle className="text-gray-400" /> Change Password
+                      </button>
+                      <button onClick={() => { localStorage.clear(); window.location.href = '/'; }} className="w-full text-left px-4 py-2.5 mt-1 hover:bg-red-50 rounded-xl text-sm font-bold text-red-600 flex items-center gap-3 transition-colors">
+                        <FaSignOutAlt className="text-red-500" /> Logout
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </header>
 
         {/* PAGE CONTENT CONTAINER */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-[#F8FAFC]">
+        <div className={`flex-1 overflow-y-auto p-6 md:p-8 transition-all duration-300 ${
+          settingsData.themeMode === "Dark" ? "bg-slate-950 text-slate-100" : "bg-[#F8FAFC] text-gray-900"
+        }`}>
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -2821,15 +3526,32 @@ Contact Email: ${item.email}
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase">Status Remarks / Pending Reasons</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Awaiting Bank Statement Verification"
-                    value={formData.pendingReason}
-                    onChange={(e) => setFormData({ ...formData, pendingReason: e.target.value })}
-                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 mt-1 text-sm outline-none"
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-400 uppercase">Application Status *</label>
+                    <select
+                      value={formData.status || "Pending"}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                      className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 mt-1 text-sm outline-none"
+                    >
+                      <option value="">-- Select Status --</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Documents Received">Documents Received</option>
+                      <option value="Under Review">Under Review</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-400 uppercase">Status Remarks / Pending Reasons</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Awaiting Bank Statement Verification"
+                      value={formData.pendingReason}
+                      onChange={(e) => setFormData({ ...formData, pendingReason: e.target.value })}
+                      className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 mt-1 text-sm outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -2846,6 +3568,104 @@ Contact Email: ${item.email}
                     setEditData(null);
                   }}
                   className="bg-gray-100 text-gray-700 font-bold px-6 py-2.5 rounded-xl hover:bg-gray-200"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {showPasswordModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-fade-in"
+          >
+            <motion.div
+              initial={{ y: 20, scale: 0.95 }}
+              animate={{ y: 0, scale: 1 }}
+              exit={{ y: 20, scale: 0.95 }}
+              className="bg-white border border-gray-100 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl relative"
+            >
+              <button
+                onClick={() => setShowPasswordModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <FaTimes size={18} />
+              </button>
+
+              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <FaCheckCircle className="text-blue-600" /> Change Password
+              </h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Current Password</label>
+                  <input
+                    type="password"
+                    value={passwordForm.currentPassword}
+                    onChange={(e) => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
+                    placeholder="Enter current password"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">New Password</label>
+                  <input
+                    type="password"
+                    value={passwordForm.newPassword}
+                    onChange={(e) => setPasswordForm({...passwordForm, newPassword: e.target.value})}
+                    placeholder="Enter new password"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Confirm New Password</label>
+                  <input
+                    type="password"
+                    value={passwordForm.confirmPassword}
+                    onChange={(e) => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
+                    placeholder="Confirm new password"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-4">
+                <button
+                  onClick={() => {
+                    const currentStored = localStorage.getItem("adminPassword") || "admin123";
+                    if (passwordForm.currentPassword !== currentStored) {
+                      toast.error("Incorrect current password!");
+                      return;
+                    }
+                    if (!passwordForm.newPassword) {
+                      toast.error("Please enter a new password");
+                      return;
+                    }
+                    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+                      toast.error("New passwords do not match!");
+                      return;
+                    }
+                    localStorage.setItem("adminPassword", passwordForm.newPassword);
+                    toast.success("Password changed successfully!");
+                    setShowPasswordModal(false);
+                    setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all"
+                >
+                  Save Password
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPasswordModal(false);
+                    setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+                  }}
+                  className="bg-gray-100 text-gray-700 font-bold px-6 py-2.5 rounded-xl hover:bg-gray-200 transition-all"
                 >
                   Cancel
                 </button>

@@ -1,193 +1,308 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import { motion } from "framer-motion";
+import axios from "axios";
 
 import toast from "react-hot-toast";
+
+import { motion } from "framer-motion";
+
+import {
+  FaEye,
+  FaEyeSlash
+} from "react-icons/fa";
 
 function Login() {
 
   const navigate = useNavigate();
 
-  const [role,setRole] = useState("user");
+  const [email, setEmail] = useState("");
 
-  const [formData,setFormData] = useState({
-    email:"",
-    password:""
-  });
+  const [password, setPassword] = useState("");
 
- const handleLogin = (e)=>{
+  const [showPassword, setShowPassword] = useState(false);
 
-  e.preventDefault();
+  const [rememberMe, setRememberMe] = useState(false);
 
-  if(
-    !formData.email ||
-    !formData.password
-  ){
-    toast.error("Fill all fields");
-    return;
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+
+  const token = localStorage.getItem("adminToken");
+
+  if (token) {
+
+    navigate("/admin-dashboard");
+
   }
 
-  localStorage.setItem(
-    "isLoggedIn",
-    "true"
-  );
+}, [navigate]);
 
-  localStorage.setItem(
-    "userRole",
-    role
-  );
+  const handleLogin = async (e) => {
 
-  toast.success("Login Successful");
+    e.preventDefault();
 
-  if(role === "admin"){
+    setLoading(true);
 
-  navigate("/visa-control-center");
+    try {
 
-}else{
+      const res = await axios.post(
+        "http://localhost:5000/api/admin/login",
+        {
+          email,
+          password
+        }
+      );
 
-  navigate("/track-visa");
-}};
+      if (res.data.success) {
+
+        toast.success("Login Success");
+
+        localStorage.setItem(
+          "adminToken",
+          res.data.token
+        );
+
+        localStorage.setItem(
+          "adminRole",
+          res.data.role
+        );
+
+        if (rememberMe) {
+
+          localStorage.setItem(
+            "rememberAdmin",
+            true
+          );
+
+        }
+
+        setTimeout(() => {
+
+          navigate("/admin-dashboard");
+
+        }, 1500);
+
+      }
+
+    } catch (error) {
+
+      toast.error(
+        error.response?.data?.message ||
+        "Login Failed"
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
+
   return (
 
-    <div className="min-h-screen bg-white flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center px-6 py-10 overflow-hidden">
 
       <motion.div
 
         initial={{
-          opacity:0,
-          y:50
+          opacity: 0,
+          y: 50
         }}
 
         animate={{
-          opacity:1,
-          y:0
+          opacity: 1,
+          y: 0
         }}
 
-        className="w-full max-w-[500px] bg-white shadow-2xl border border-gray-100 rounded-[40px] p-10"
+        transition={{
+          duration: 0.8
+        }}
+
+        className="max-w-6xl w-full bg-white rounded-[40px] shadow-2xl overflow-hidden grid lg:grid-cols-2"
       >
 
-        <h2 className="text-5xl font-bold text-gray-900 text-center">
+        {/* LEFT SIDE */}
 
-          Login
-        </h2>
+        <div className="p-10 lg:p-16 flex flex-col justify-center">
 
-        <p className="text-gray-500 text-center mt-4">
+          {/* LOGO */}
 
-          Access your visa portal
-        </p>
+          <h1 className="text-5xl font-black">
 
-        {/* ROLE */}
+            <span className="text-blue-600">
+              HASSLE
+            </span>
 
-        <div className="mt-10 grid grid-cols-2 gap-4">
+            <span className="text-red-500">
+              FREE
+            </span>
 
-          <button
+          </h1>
 
-            onClick={()=>setRole("user")}
+          {/* TITLE */}
 
-            className={`py-4 rounded-2xl font-semibold duration-300
+          <h2 className="text-4xl font-bold text-gray-900 mt-10">
 
-            ${
-              role === "user"
+            Welcome Back 👋
 
-              ? "bg-blue-600 text-white"
+          </h2>
 
-              : "bg-gray-100 text-gray-600"
-            }
-            `}
+          <p className="text-gray-500 mt-3 text-lg">
+
+            Login to your admin dashboard
+
+          </p>
+
+          {/* FORM */}
+
+          <form
+            onSubmit={handleLogin}
+            className="space-y-6 mt-10"
           >
 
-            User
+            {/* EMAIL */}
 
-          </button>
+            <div>
 
-          <button
+              <label className="font-semibold text-gray-700">
 
-            onClick={()=>setRole("admin")}
+                Email Address
 
-            className={`py-4 rounded-2xl font-semibold duration-300
+              </label>
 
-            ${
-              role === "admin"
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e)=>
+                  setEmail(e.target.value)
+                }
+                required
+                className="w-full mt-3 border border-gray-300 rounded-2xl px-5 py-4 outline-none focus:border-blue-600"
+              />
 
-              ? "bg-red-500 text-white"
+            </div>
 
-              : "bg-gray-100 text-gray-600"
-            }
-            `}
-          >
+            {/* PASSWORD */}
 
-            Admin
+            <div>
 
-          </button>
+              <label className="font-semibold text-gray-700">
+
+                Password
+
+              </label>
+
+              <div className="relative mt-3">
+
+                <input
+                  type={
+                    showPassword
+                    ? "text"
+                    : "password"
+                  }
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e)=>
+                    setPassword(e.target.value)
+                  }
+                  required
+                  className="w-full border border-gray-300 rounded-2xl px-5 py-4 pr-14 outline-none focus:border-blue-600"
+                />
+
+                <button
+                  type="button"
+                  onClick={()=>
+                    setShowPassword(!showPassword)
+                  }
+                  className="absolute top-1/2 right-5 -translate-y-1/2 text-gray-500"
+                >
+
+                  {
+                    showPassword
+                    ? <FaEyeSlash />
+                    : <FaEye />
+                  }
+
+                </button>
+
+              </div>
+
+            </div>
+
+            {/* REMEMBER */}
+
+            <div className="flex items-center gap-3">
+
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={()=>
+                  setRememberMe(!rememberMe)
+                }
+                className="w-4 h-4"
+              />
+
+              <p className="text-gray-600">
+
+                Remember Me
+
+              </p>
+
+            </div>
+
+            {/* BUTTON */}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-red-500 duration-300 text-white py-4 rounded-2xl font-bold text-lg"
+            >
+
+              {
+                loading
+                ? "Logging In..."
+                : "Login"
+              }
+
+            </button>
+
+          </form>
 
         </div>
 
-        {/* FORM */}
+        {/* RIGHT SIDE */}
 
-        <form
-          onSubmit={handleLogin}
-          className="space-y-6 mt-10"
-        >
+        <div className="hidden lg:flex items-center justify-center bg-white p-10 relative overflow-hidden">
 
-          <input
+          <motion.img
 
-            type="email"
+            initial={{
+              opacity: 0,
+              scale: 0.8
+            }}
 
-            placeholder="Email Address"
+            animate={{
+              opacity: 1,
+              scale: 1
+            }}
 
-            value={formData.email}
+            transition={{
+              duration: 1
+            }}
 
-            onChange={(e)=>
-              setFormData({
-                ...formData,
-                email:e.target.value
-              })
-            }
+            src="/travel-login.png"
 
-            className="w-full bg-gray-50 border border-gray-300 rounded-2xl px-6 py-5 text-gray-900 outline-none focus:border-blue-600"
+            alt="travel"
+
+            className="w-[420px] object-contain"
           />
 
-          <input
-
-            type="password"
-
-            placeholder="Password"
-
-            value={formData.password}
-
-            onChange={(e)=>
-              setFormData({
-                ...formData,
-                password:e.target.value
-              })
-            }
-
-            className="w-full bg-gray-50 border border-gray-300 rounded-2xl px-6 py-5 text-gray-900 outline-none focus:border-blue-600"
-          />
-
-          <button
-
-            type="submit"
-
-            className={`w-full py-5 rounded-2xl font-bold text-lg duration-300
-
-            ${
-              role === "admin"
-
-              ? "bg-red-500 hover:bg-red-600 text-white"
-
-              : "bg-blue-600 hover:bg-blue-700 text-white"
-            }
-            `}
-          >
-
-            Login as {role}
-
-          </button>
-
-        </form>
+        </div>
 
       </motion.div>
 
@@ -196,3 +311,4 @@ function Login() {
 }
 
 export default Login;
+
