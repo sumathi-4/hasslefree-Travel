@@ -28,17 +28,17 @@ function Login() {
 
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+   useEffect(() => {
 
-  const token = localStorage.getItem("adminToken");
+    const token = localStorage.getItem("adminToken");
 
-  if (token) {
+    if (token && token !== "undefined") {
 
-    navigate("/admin-dashboard");
+      navigate("/admin-dashboard");
 
-  }
+    }
 
-}, [navigate]);
+  }, []);
 
   const handleLogin = async (e) => {
 
