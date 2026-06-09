@@ -129,11 +129,9 @@ function PopularCountries() {
 
                   </p>
 
-                  <button className="mt-5 bg-red-500 hover:bg-red-600 duration-300 text-white px-5 py-3 rounded-full font-semibold">
-
-                    Apply Visa
-
-                  </button>
+                  <p className="text-sm text-gray-400 mt-2">
+                    Click card for details
+                  </p>
 
                 </div>
 

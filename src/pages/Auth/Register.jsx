@@ -13,7 +13,6 @@ function Register() {
   const [role,setRole] = useState("user");
 
   const [formData,setFormData] = useState({
-    name:"",
     email:"",
     password:""
   });
@@ -23,7 +22,6 @@ function Register() {
   e.preventDefault();
 
   if(
-    !formData.name ||
     !formData.email ||
     !formData.password
   ){
@@ -41,10 +39,10 @@ function Register() {
     role
   );
 
-  toast.success("Registration Successful");
+  toast.success("Login Successful");
 if(role === "admin"){
 
-  navigate("/visa-control-center");
+  navigate("/admin-dashboard");
 
 }else{
 navigate("/track-visa");
@@ -72,7 +70,7 @@ navigate("/track-visa");
 
         <h2 className="text-5xl font-bold text-gray-900 text-center">
 
-          Register
+          User Login
         </h2>
 
         <div className="mt-10">
@@ -84,7 +82,7 @@ navigate("/track-visa");
       ${role === "user" ? "bg-blue-600 text-white" : "bg-white/5 text-gray-300"}
     `}
   >
-    User
+    User Account
   </button>
 </div>
 
@@ -99,27 +97,9 @@ navigate("/track-visa");
 
           <input
 
-            type="text"
-
-            placeholder="Full Name"
-
-            value={formData.name}
-
-            onChange={(e)=>
-              setFormData({
-                ...formData,
-                name:e.target.value
-              })
-            }
-
-            className="w-full bg-gray-50 border border-gray-300 rounded-2xl px-6 py-5 text-gray-900 outline-none focus:border-blue-600"
-          />
-
-          <input
-
             type="email"
 
-            placeholder="Email"
+            placeholder="Email Address"
 
             value={formData.email}
 
@@ -167,7 +147,7 @@ navigate("/track-visa");
             `}
           >
 
-            Register 
+            Login
 
           </button>
 

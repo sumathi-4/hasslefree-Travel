@@ -61,6 +61,16 @@ function Login() {
         toast.success("Login Success");
 
         localStorage.setItem(
+          "isLoggedIn",
+          "true"
+        );
+
+        localStorage.setItem(
+          "userRole",
+          "admin"
+        );
+
+        localStorage.setItem(
           "adminToken",
           res.data.token
         );

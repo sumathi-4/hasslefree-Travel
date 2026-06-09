@@ -64,11 +64,6 @@ function Footer() {
     </li>
   </Link>
 
-  <Link to="/apply-visa">
-    <li className="hover:text-yellow-400 cursor-pointer duration-300">
-      Apply Visa
-    </li>
-  </Link>
 
   <Link to="/contact">
     <li className="hover:text-yellow-400 cursor-pointer duration-300">
@@ -92,23 +87,7 @@ function Footer() {
 
            <ul className="space-y-4 mt-6 text-gray-400">
 
-  <Link to="/apply-visa">
-    <li className="hover:text-yellow-400 cursor-pointer duration-300">
-      Tourist Visa
-    </li>
-  </Link>
 
-  <Link to="/apply-visa">
-    <li className="hover:text-yellow-400 cursor-pointer duration-300">
-      Business Visa
-    </li>
-  </Link>
-
-  <Link to="/apply-visa">
-    <li className="hover:text-yellow-400 cursor-pointer duration-300">
-      Student Visa
-    </li>
-  </Link>
 
   <Link to="/track-visa">
     <li className="hover:text-yellow-400 cursor-pointer duration-300">

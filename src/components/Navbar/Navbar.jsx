@@ -132,12 +132,6 @@ function Navbar() {
     </li>
   </Link>
 
-  <Link to="/apply-visa">
-    <li className="hover:text-blue-600 duration-300">
-      <span className="text-red-500">Apply</span>
-      <span className="text-yellow-400">Visa</span>
-    </li>
-  </Link>
 
   <Link to="/track-visa">
     <li className="hover:text-blue-600 duration-300">
@@ -166,162 +160,48 @@ function Navbar() {
 
         <div className="hidden lg:flex items-center gap-5">
 
-          <Link to="/apply-visa">
-
-            <button className="bg-red-500 hover:bg-red-600 duration-300 text-white px-6 py-3 rounded-full font-medium">
-
-              Apply Now
-
-            </button>
-
-          </Link>
-
           {/* PROFILE */}
-
-          <div
-            className="relative"
-            ref={dropdownRef}
-          >
-
+          <div className="relative" ref={dropdownRef}>
             <button
-
-              onClick={()=>
-                setProfileDropdown(!profileDropdown)
-              }
-
+              onClick={() => setProfileDropdown(!profileDropdown)}
               className="flex items-center gap-2 bg-white/10 hover:bg-white/20 duration-300 px-5 py-3 rounded-full text-white"
             >
-
               <FaUserCircle className="text-2xl" />
-
-              <FaChevronDown className="text-sm" />
-
+              <FaChevronDown className={`text-sm transition-transform duration-300 ${profileDropdown ? 'rotate-180' : ''}`} />
             </button>
 
             <AnimatePresence>
-
               {profileDropdown && (
-
                 <motion.div
-
-                  initial={{
-                    opacity:0,
-                    y:20
-                  }}
-
-                  animate={{
-                    opacity:1,
-                    y:0
-                  }}
-
-                  exit={{
-                    opacity:0,
-                    y:20
-                  }}
-
-                  className="absolute top-[70px] right-0 w-[260px] bg-white border border-gray-100 rounded-3xl p-4 backdrop-blur-xl shadow-2xl"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl py-2 z-50 overflow-hidden"
                 >
+                  <button
+                    onClick={() => {
+                      setProfileDropdown(false);
+                      navigate("/admin-login");
+                    }}
+                    className="w-full flex items-center gap-3 px-6 py-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                  >
+                    <FaUserShield className="text-xl" />
+                    <span className="font-semibold">Admin</span>
+                  </button>
 
-                  {!isLoggedIn ? (
-
- <div className="flex flex-col gap-4"> 
-
-    <Link to="/login">
-
-      <button className="w-full flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 duration-300 text-white px-5 py-4 rounded-2xl">
-
-        <FaUser />
-
-        Login
-
-      </button>
-
-    </Link>
-
-    <Link to="/register">
-
-      <button className="w-full flex items-center justify-center gap-3 bg-yellow-400 hover:bg-yellow-500 duration-300 text-black px-5 py-4 rounded-2xl">
-
-        <FaUserShield />
-
-        Register
-
-      </button>
-
-    </Link>
-
-  </div>
-
-) : (
-
-                    <div>
-
-                      <div className="bg-gray-50 rounded-2xl p-5 mb-4">
-
-                        <h3 className="text-gray-900 text-lg font-semibold">
-
-                          Logged In
-
-                        </h3>
-
-                        <p className="text-gray-600 mt-1 capitalize">
-
-                          Role : {userRole}
-
-                        </p>
-
-                      </div>
-
-                      {userRole === "user" && (
-
-                        <Link to="/track-visa">
-
-                          <button className="w-full mb-3 bg-blue-600 hover:bg-blue-700 duration-300 text-white py-4 rounded-2xl font-medium">
-
-                            Track Visa
-
-                          </button>
-
-                        </Link>
-
-                      )}
-
-                      {userRole === "admin" && (
-
-                       <Link to="/visa-control-center">
-
-                          <button className="w-full mb-3 bg-yellow-400 hover:bg-yellow-500 duration-300 text-black py-4 rounded-2xl font-medium">
-
-                            Open Admin Panel
-
-                          </button>
-
-                        </Link>
-
-                      )}
-
-                      <button
-
-                        onClick={handleLogout}
-
-                        className="w-full flex items-center justify-center gap-3 bg-red-500 hover:bg-red-600 duration-300 text-white py-4 rounded-2xl font-medium"
-                      >
-
-                        <FaSignOutAlt />
-
-                        Logout
-
-                      </button>
-
-                    </div>
-
-                  )}
-
+                  <button
+                    onClick={() => {
+                      setProfileDropdown(false);
+                      navigate("/user-login");
+                    }}
+                    className="w-full flex items-center gap-3 px-6 py-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                  >
+                    <FaUser className="text-xl" />
+                    <span className="font-semibold">User</span>
+                  </button>
                 </motion.div>
               )}
-
             </AnimatePresence>
-
           </div>
 
         </div>
@@ -424,11 +304,6 @@ function Navbar() {
                   </li>
                 </Link>
 
-                <Link to="/apply-visa" onClick={()=>setMenu(false)}>
-                  <li className="hover:text-yellow-400 duration-300">
-                    Apply Visa
-                  </li>
-                </Link>
 
                 <Link to="/track-visa" onClick={()=>setMenu(false)}>
                   <li className="hover:text-yellow-400 duration-300">
@@ -456,31 +331,29 @@ function Navbar() {
 
                 {!isLoggedIn ? (
 
-  <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
+                    <button
+                      onClick={() => {
+                        setMenu(false);
+                        navigate("/admin-login");
+                      }}
+                      className="w-full bg-blue-600 hover:bg-blue-700 duration-300 text-white py-4 rounded-2xl font-semibold flex items-center justify-center gap-3"
+                    >
+                      <FaUserShield /> Admin Login
+                    </button>
 
-    <Link to="/login">
+                    <button
+                      onClick={() => {
+                        setMenu(false);
+                        navigate("/user-login");
+                      }}
+                      className="w-full bg-gray-100 hover:bg-gray-200 duration-300 text-gray-900 py-4 rounded-2xl font-semibold flex items-center justify-center gap-3"
+                    >
+                      <FaUser /> User Login
+                    </button>
+                  </div>
 
-      <button className="w-full bg-blue-600 hover:bg-blue-700 duration-300 text-white py-4 rounded-2xl font-semibold">
-
-        Login
-
-      </button>
-
-    </Link>
-
-    <Link to="/register">
-
-      <button className="w-full bg-yellow-400 hover:bg-yellow-500 duration-300 text-black py-4 rounded-2xl font-semibold">
-
-        Register
-
-      </button>
-
-    </Link>
-
-  </div>
-
-): (
+                ): (
 
                   <>
 

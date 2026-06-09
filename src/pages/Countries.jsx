@@ -260,13 +260,9 @@ function Countries() {
 
                   </div>
 
-                  {/* Button */}
-
-                  <button className="w-full mt-8 bg-red-500 hover:bg-red-600 duration-300 text-white py-4 rounded-full font-semibold">
-
-                    Apply Now
-
-                  </button>
+                  <div className="mt-8 text-center text-sm text-gray-500">
+                    Visa processing options available
+                  </div>
 
                 </div>
 

@@ -4,11 +4,13 @@ import mongoose from "mongoose";
 
 import cors from "cors";
 
+import path from "path";
+import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
 import adminRoutes from "./routes/adminRoutes.js";
 
-dotenv.config();
+dotenv.config({ path: path.join(path.dirname(fileURLToPath(import.meta.url)), ".env") });
 
 const app = express();
 

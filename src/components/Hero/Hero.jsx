@@ -66,12 +66,6 @@ function Hero() {
             className="flex gap-4 mt-8"
           >
 
-            <button className="bg-blue-600 hover:bg-yellow-400 hover:text-black duration-300 text-white px-8 py-4 rounded-full font-semibold">
-
-              Apply Now
-
-            </button>
-
             <button className="bg-red-500 hover:bg-red-600 duration-300 text-white px-8 py-4 rounded-full font-semibold">
 
               Track Visa
