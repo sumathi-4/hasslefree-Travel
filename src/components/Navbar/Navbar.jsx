@@ -133,12 +133,23 @@ function Navbar() {
   </Link>
 
 
-  <Link to="/track-visa">
-    <li className="hover:text-blue-600 duration-300">
+  <button 
+    onClick={() => {
+      if (isLoggedIn && userRole === "user") {
+        navigate("/track-visa");
+      } else if (isLoggedIn && userRole === "admin") {
+        navigate("/admin-dashboard");
+      } else {
+        navigate("/user-login", { state: { from: { pathname: "/track-visa" } } });
+      }
+    }}
+    className="hover:text-blue-600 duration-300 cursor-pointer text-left"
+  >
+    <li className="list-none">
       <span className="text-yellow-400">Track</span>
       <span className="text-red-500">Visa</span>
     </li>
-  </Link>
+  </button>
 
   <Link to="/about">
     <li className="hover:text-blue-600 duration-300">
@@ -305,11 +316,21 @@ function Navbar() {
                 </Link>
 
 
-                <Link to="/track-visa" onClick={()=>setMenu(false)}>
-                  <li className="hover:text-yellow-400 duration-300">
-                    Track Visa
-                  </li>
-                </Link>
+                <button 
+                  onClick={() => {
+                    setMenu(false);
+                    if (isLoggedIn && userRole === "user") {
+                      navigate("/track-visa");
+                    } else if (isLoggedIn && userRole === "admin") {
+                      navigate("/admin-dashboard");
+                    } else {
+                      navigate("/user-login", { state: { from: { pathname: "/track-visa" } } });
+                    }
+                  }}
+                  className="hover:text-yellow-400 duration-300 text-left font-medium"
+                >
+                  Track Visa
+                </button>
 
                 <Link to="/about" onClick={()=>setMenu(false)}>
                   <li className="hover:text-yellow-400 duration-300">

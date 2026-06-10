@@ -576,13 +576,45 @@ router.delete("/applications/:id", async (req, res) => {
   }
 });
 
-// Legacy send-status-email route for standalone calls
-router.post("/send-status-email", async (req, res) => {
+// GET track visa status by application ID and passport
+router.get("/track-visa", async (req, res) => {
   try {
-    await sendApplicationEmail(req.body);
-    res.json({ success: true, message: "Status update email processed" });
+    const { id, passport } = req.query;
+    if (!id || !passport) {
+      return res.status(400).json({
+        success: false,
+        message: "Application ID and Passport Number are required"
+      });
+    }
+
+    // Seed mock data if database is empty to prevent lookup failure
+    const count = await Application.countDocuments({});
+    if (count === 0) {
+      console.log("Seeding initial mock data from track-visa route...");
+      await Application.insertMany(defaultApplications);
+    }
+
+    const application = await Application.findOne({ 
+      id: { $regex: new RegExp(`^${id.trim()}$`, "i") }, 
+      passport: { $regex: new RegExp(`^${passport.trim()}$`, "i") } 
+    });
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: "No application found matching these details"
+      });
+    }
+
+    res.json({
+      success: true,
+      application
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Failed to process email", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
   }
 });
 

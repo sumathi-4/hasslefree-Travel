@@ -5,7 +5,7 @@ import TrackVisa from "./pages/TrackVisa";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Login from "./pages/Auth/Login";
-import Register from "./pages/Auth/Register";
+import UserLogin from "./pages/Auth/UserLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
@@ -18,7 +18,7 @@ function App() {
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/admin-login" element={<Login />} />
-      <Route path="/user-login" element={<Register />} />
+      <Route path="/user-login" element={<UserLogin />} />
       <Route
         path="/admin-dashboard"
         element={

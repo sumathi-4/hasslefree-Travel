@@ -5,12 +5,30 @@ import {
   FaFacebookF,
   FaInstagram,
   FaLinkedinIn,
-  FaWhatsapp
+  FaWhatsapp,
+  FaMapMarkerAlt,
+  FaPhoneAlt,
+  FaEnvelope
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Footer() {
   const [openAdmin,setOpenAdmin] = useState(false);
+  const navigate = useNavigate();
+
+  const handleTrackVisaClick = () => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    const userRole = localStorage.getItem("userRole");
+
+    if (isLoggedIn && userRole === "user") {
+      navigate("/track-visa");
+    } else if (isLoggedIn && userRole === "admin") {
+      navigate("/admin-dashboard");
+    } else {
+      navigate("/user-login", { state: { from: { pathname: "/track-visa" } } });
+    }
+  };
+
   return (
 
     <footer className="bg-white text-gray-900 pt-20 pb-10 border-t border-gray-100">
@@ -89,11 +107,12 @@ function Footer() {
 
 
 
-  <Link to="/track-visa">
-    <li className="hover:text-yellow-400 cursor-pointer duration-300">
-      Track Application
-    </li>
-  </Link>
+  <button 
+    onClick={handleTrackVisaClick}
+    className="hover:text-yellow-400 cursor-pointer duration-300 text-left w-full"
+  >
+    Track Application
+  </button>
 
 </ul>
 
