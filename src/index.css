@@ -1,85 +1,348 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
 @import "tailwindcss";
 
-:root {
-  --primary: #1E60F2;
-  --primary-hover: #164ec4;
-  --accent: #FF3E41;
-  --accent-hover: #e02f32;
-  --gold: #F4B400;
-  --dark: #0A1128;
-  --light: #F8FAFC;
-  --white: #ffffff;
+@theme {
+
+  --font-sans: 'Outfit', sans-serif;
+
+  --color-blue-500: #1E60F2;
+  --color-blue-600: #1E60F2;
+  --color-blue-700: #164ec4;
+
+  --color-red-500: #FF3E41;
+  --color-red-600: #e02f32;
+
+  --color-yellow-400: #FFC93C;
+
+  --color-emerald-500: #10B981;
+
+}
+
+html {
+
+  scroll-behavior: smooth;
+
 }
 
 body {
-  background: var(--light);
+
   font-family: 'Outfit', sans-serif;
-  overflow-x: hidden;
+
+  background: #F8FAFC;
+
   color: #1E293B;
+
+  overflow-x: hidden;
+
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Outfit', sans-serif;
+/* PREMIUM SMOOTH TEXT */
+
+* {
+
+  -webkit-font-smoothing: antialiased;
+
+  -moz-osx-font-smoothing: grayscale;
+
+  box-sizing: border-box;
+
 }
 
-/* Global Theme Color & Button Overrides matching the mockup theme */
+/* BUTTON EFFECTS */
 
-/* Red / Accent overrides */
-.bg-red-500, 
-.bg-red-600 {
-  background-color: var(--accent) !important;
-}
-
-.hover\:bg-red-600:hover, 
-.hover\:bg-red-500:hover {
-  background-color: var(--accent-hover) !important;
-}
-
-.text-red-500, 
-.text-red-600 {
-  color: var(--accent) !important;
-}
-
-.hover\:text-red-600:hover, 
-.hover\:text-red-500:hover {
-  color: var(--accent-hover) !important;
-}
-
-/* Blue / Primary overrides */
-.bg-blue-500, 
-.bg-blue-600, 
-.bg-blue-700 {
-  background-color: var(--primary) !important;
-}
-
-.hover\:bg-blue-600:hover, 
-.hover\:bg-blue-700:hover, 
-.hover\:bg-blue-500:hover {
-  background-color: var(--primary-hover) !important;
-}
-
-.text-blue-500, 
-.text-blue-600, 
-.text-blue-700 {
-  color: var(--primary) !important;
-}
-
-.hover\:text-blue-600:hover, 
-.hover\:text-blue-700:hover {
-  color: var(--primary-hover) !important;
-}
-
-/* Button & Card Micro-animations */
 button {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+  font-family: 'Outfit', sans-serif;
+
+  transition:
+    all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
 }
 
 button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(30, 96, 242, 0.15);
+
+  transform: translateY(-2px);
+
 }
 
-.card, .group {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* PREMIUM CARD EFFECT */
+
+.card,
+.group {
+
+  transition:
+    all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+}
+
+/* Infinite Scrolling Marquee */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-1328px); /* 4 cards of 300px + 32px gaps */
+  }
+}
+
+.marquee-container {
+  display: flex;
+  width: max-content;
+  animation: marquee 20s linear infinite;
+}
+
+.marquee-container:hover {
+  animation-play-state: paused;
+}
+
+/* GLASS EFFECT */
+
+.glass {
+
+  background: rgba(255,255,255,0.1);
+
+  backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(255,255,255,0.2);
+
+}
+
+/* PREMIUM SHADOW */
+
+.premium-shadow {
+
+  box-shadow:
+    0 8px 32px rgba(31,38,135,0.15);
+
+}
+
+/* NEUMORPHISM */
+
+.neu {
+
+  background: #f8fafc;
+
+  box-shadow:
+    8px 8px 20px #dbe4f3,
+    -8px -8px 20px #ffffff;
+
+}
+
+/* SCROLLBAR */
+
+::-webkit-scrollbar {
+
+  width: 8px;
+
+}
+
+::-webkit-scrollbar-track {
+
+  background: #f1f5f9;
+
+}
+
+::-webkit-scrollbar-thumb {
+
+  background: linear-gradient(
+    to bottom,
+    #1E60F2,
+    #FF3E41
+  );
+
+  border-radius: 999px;
+
+}
+@keyframes float {
+
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+
+}
+
+.animate-float {
+
+  animation: float 4s ease-in-out infinite;
+
+}
+.orbit-container{
+  position:relative;
+  width:100%;
+  height:850px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  perspective:2000px;
+}
+
+.globe{
+  width:470px;
+  height:470px;
+  border-radius:50%;
+  position:absolute;
+  overflow:hidden;
+
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg");
+  background-size:cover;
+  background-position:center;
+background-size:120%;
+  box-shadow:
+    0 0 40px rgba(15,82,186,.6),
+    0 0 80px rgba(15,82,186,.4);
+
+  animation: globeSpin 40s linear infinite;
+
+  z-index:2;
+}
+
+.globe::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:40%;
+  height:100%;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.35),
+    transparent
+  );
+  animation:shine 8s linear infinite;
+}
+
+@keyframes shine{
+  100%{
+    left:150%;
+  }
+}
+.globe::after{
+  content:"";
+  position:absolute;
+  inset:-10px;
+  border-radius:50%;
+  border:3px solid rgba(96,165,250,.3);
+  filter:blur(10px);
+  display:none;
+}
+
+@keyframes globeSpin{
+  from{
+    transform:rotate(0deg);
+  }
+  to{
+    transform:rotate(360deg);
+  }
+}
+.orbit-container{
+  position:relative;
+  width:100%;
+  height:850px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  perspective:2000px;
+  transform-style:preserve-3d;
+}
+
+.orbit-ring{
+  position:absolute;
+  width:100%;
+  height:100%;
+  transform-style:preserve-3d;
+  animation: orbitRotate 30s linear infinite;
+   z-index:5;
+}
+
+@keyframes orbitRotate{
+  from{
+    transform:rotateY(0deg);
+  }
+  to{
+    transform:rotateY(360deg);
+  }
+}
+
+.country-card{
+  position:absolute;
+  width:280px;
+  left:50%;
+  top:50%;
+  margin-left:-140px;
+  margin-top:-220px;
+  transform-style:preserve-3d;
+  
+  backface-visibility:hidden;
+}
+.flight{
+  position:absolute;
+  font-size:60px;
+  z-index:30;
+  left:50%;
+  top:50%;
+  margin-left:-30px;
+  margin-top:-30px;
+  animation: planeOrbitHorizontal 10s linear infinite;
+}
+
+@keyframes planeOrbitHorizontal{
+
+  from{
+    transform:
+      rotateY(0deg)
+      translateZ(340px);
+  }
+
+  to{
+    transform:
+      rotateY(360deg)
+      translateZ(340px);
+  }
+
+}
+.flight2{
+  position:absolute;
+  font-size:55px;
+  z-index:25;
+  left:50%;
+  top:50%;
+  margin-left:-25px;
+  margin-top:-25px;
+
+  animation: planeHalfOrbit 8s ease-in-out infinite;
+}
+
+@keyframes planeHalfOrbit{
+
+  0%{
+    transform:
+      rotate(-180deg)
+      translateX(280px)
+      rotate(180deg);
+  }
+
+  50%{
+    transform:
+      rotate(0deg)
+      translateX(280px)
+      rotate(0deg);
+  }
+
+  100%{
+    transform:
+      rotate(180deg)
+      translateX(280px)
+      rotate(-180deg);
+  }
+
 }

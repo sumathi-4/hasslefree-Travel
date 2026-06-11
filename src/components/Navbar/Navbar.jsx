@@ -7,9 +7,7 @@ import {
   FaTimes,
   FaUserCircle,
   FaUser,
-  FaUserShield,
-  FaSignOutAlt,
-  FaChevronDown
+  FaUserShield
 } from "react-icons/fa";
 
 import { motion,AnimatePresence } from "framer-motion";
@@ -39,6 +37,7 @@ function Navbar() {
       setIsLoggedIn(true);
 
       setUserRole(role);
+
     }
 
   },[]);
@@ -51,8 +50,11 @@ function Navbar() {
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target)
       ){
+
         setProfileDropdown(false);
+
       }
+
     };
 
     document.addEventListener(
@@ -66,6 +68,7 @@ function Navbar() {
         "mousedown",
         handleClickOutside
       );
+
     };
 
   },[]);
@@ -84,30 +87,54 @@ function Navbar() {
 
   };
 
-  
-
   return (
 
-    <nav className="absolute top-0 left-0 w-full z-50">
+    <nav className="fixed top-5 left-0 w-full z-50 px-4 md:px-8">
 
-      <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div
+        className="
+          max-w-7xl
+          mx-auto
+          bg-white/30
+          backdrop-blur-3xl
+          border
+          border-white/40
+          px-8
+          py-4
+          rounded-full
+          flex
+          items-center
+          justify-between
+          shadow-[0_8px_40px_rgba(15,82,186,0.18)]
+        "
+      >
 
         {/* LOGO */}
 
-        <Link to="/">
+        <Link
+          to="/"
+          className="flex items-center gap-3"
+        >
 
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/201/201623.png"
+            alt="logo"
+            className="
+              w-11
+              h-11
+              object-contain
+              drop-shadow-xl
+            "
+          />
 
-            <span className="text-blue-600">
+          <h1 className="text-2xl font-black">
 
+            <span className="text-[#0F52BA]">
               HASSLE
-
             </span>
 
-            <span className="text-yellow-400">
-
+            <span className="text-red-500">
               FREE
-
             </span>
 
           </h1>
@@ -116,112 +143,335 @@ function Navbar() {
 
         {/* DESKTOP MENU */}
 
-        <ul className="hidden lg:flex items-center gap-8 font-semibold text-[17px]">
+        <ul
+          className="
+            hidden
+            lg:flex
+            items-center
+            gap-10
+            font-bold
+            text-[17px]
+            text-[#0F52BA]
+          "
+        >
 
-  <Link to="/">
-    <li className="text-red-500 hover:text-blue-600 duration-300">
-      <span className="text-red-500">Ho</span>
-      <span className="text-yellow-400">me</span>
-    </li>
-  </Link>
+          <Link to="/">
 
-  <Link to="/countries">
-    <li className="hover:text-blue-600 duration-300">
-      <span className="text-yellow-400">Coun</span>
-      <span className="text-red-500">tries</span>
-    </li>
-  </Link>
-
-
-  <button 
-    onClick={() => {
-      if (isLoggedIn && userRole === "user") {
-        navigate("/track-visa");
-      } else if (isLoggedIn && userRole === "admin") {
-        navigate("/admin-dashboard");
-      } else {
-        navigate("/user-login", { state: { from: { pathname: "/track-visa" } } });
-      }
-    }}
-    className="hover:text-blue-600 duration-300 cursor-pointer text-left"
-  >
-    <li className="list-none">
-      <span className="text-yellow-400">Track</span>
-      <span className="text-red-500">Visa</span>
-    </li>
-  </button>
-
-  <Link to="/about">
-    <li className="hover:text-blue-600 duration-300">
-      <span className="text-red-500">Abo</span>
-      <span className="text-yellow-400">ut</span>
-    </li>
-  </Link>
-
-  <Link to="/contact">
-    <li className="hover:text-blue-600 duration-300">
-      <span className="text-yellow-400">Con</span>
-      <span className="text-red-500">tact</span>
-    </li>
-  </Link>
-
-</ul>
-
-        {/* RIGHT SIDE */}
-
-        <div className="hidden lg:flex items-center gap-5">
-
-          {/* PROFILE */}
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setProfileDropdown(!profileDropdown)}
-              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 duration-300 px-5 py-3 rounded-full text-white"
+            <li
+              className="
+                relative
+                hover:text-red-500
+                duration-300
+                cursor-pointer
+                after:absolute
+                after:left-0
+                after:-bottom-2
+                after:w-0
+                after:h-[3px]
+                after:rounded-full
+                after:bg-gradient-to-r
+                after:from-[#0F52BA]
+                after:to-red-500
+                after:duration-300
+                hover:after:w-full
+              "
             >
-              <FaUserCircle className="text-2xl" />
-              <FaChevronDown className={`text-sm transition-transform duration-300 ${profileDropdown ? 'rotate-180' : ''}`} />
-            </button>
+              Home
+            </li>
 
-            <AnimatePresence>
-              {profileDropdown && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl py-2 z-50 overflow-hidden"
+          </Link>
+
+          <Link to="/countries">
+
+            <li
+              className="
+                relative
+                hover:text-red-500
+                duration-300
+                cursor-pointer
+                after:absolute
+                after:left-0
+                after:-bottom-2
+                after:w-0
+                after:h-[3px]
+                after:rounded-full
+                after:bg-gradient-to-r
+                after:from-[#0F52BA]
+                after:to-red-500
+                after:duration-300
+                hover:after:w-full
+              "
+            >
+              Countries
+            </li>
+
+          </Link>
+
+          <button
+
+            onClick={() => {
+
+              if (isLoggedIn && userRole === "user") {
+
+                navigate("/track-visa");
+
+              } else if (isLoggedIn && userRole === "admin") {
+
+                navigate("/admin-dashboard");
+
+              } else {
+
+                navigate("/user-login", {
+                  state: {
+                    from: {
+                      pathname: "/track-visa"
+                    }
+                  }
+                });
+
+              }
+
+            }}
+
+            className="
+              relative
+              hover:text-red-500
+              duration-300
+              cursor-pointer
+              after:absolute
+              after:left-0
+              after:-bottom-2
+              after:w-0
+              after:h-[3px]
+              after:rounded-full
+              after:bg-gradient-to-r
+              after:from-[#0F52BA]
+              after:to-red-500
+              after:duration-300
+              hover:after:w-full
+            "
+          >
+
+            <li className="list-none">
+              Track Visa
+            </li>
+
+          </button>
+
+          <Link to="/about">
+
+            <li
+              className="
+                relative
+                hover:text-red-500
+                duration-300
+                cursor-pointer
+                after:absolute
+                after:left-0
+                after:-bottom-2
+                after:w-0
+                after:h-[3px]
+                after:rounded-full
+                after:bg-gradient-to-r
+                after:from-[#0F52BA]
+                after:to-red-500
+                after:duration-300
+                hover:after:w-full
+              "
+            >
+              About
+            </li>
+
+          </Link>
+
+          <Link to="/contact">
+
+            <li
+              className="
+                relative
+                hover:text-red-500
+                duration-300
+                cursor-pointer
+                after:absolute
+                after:left-0
+                after:-bottom-2
+                after:w-0
+                after:h-[3px]
+                after:rounded-full
+                after:bg-gradient-to-r
+                after:from-[#0F52BA]
+                after:to-red-500
+                after:duration-300
+                hover:after:w-full
+              "
+            >
+              Contact
+            </li>
+
+          </Link>
+
+        </ul>
+
+        {/* PROFILE */}
+
+        <div
+          className="hidden lg:flex items-center"
+          ref={dropdownRef}
+        >
+
+          <button
+
+            onClick={() =>
+              setProfileDropdown(!profileDropdown)
+            }
+
+            className="
+              flex
+              items-center
+              justify-center
+              w-14
+              h-14
+              rounded-full
+              bg-white/30
+              hover:bg-white/50
+              border
+              border-white/40
+              backdrop-blur-2xl
+              duration-300
+              shadow-xl
+            "
+          >
+
+           <FaUserCircle
+              className="
+                text-4xl
+                text-yellow-300
+                drop-shadow-[0_0_12px_rgba(250,204,21,0.8)]
+              "
+            />
+
+          </button>
+
+          <AnimatePresence>
+
+            {profileDropdown && (
+
+              <motion.div
+
+                initial={{
+                  opacity:0,
+                  y:15
+                }}
+
+                animate={{
+                  opacity:1,
+                  y:0
+                }}
+
+                exit={{
+                  opacity:0,
+                  y:15
+                }}
+
+                className="
+                  absolute
+                  right-0
+                  top-20
+                  w-60
+                  bg-white
+                  rounded-3xl
+                  overflow-hidden
+                  shadow-2xl
+                "
+              >
+
+                <button
+
+                  onClick={() => {
+
+                    setProfileDropdown(false);
+
+                    navigate("/admin-login");
+
+                  }}
+
+                  className="
+                    w-full
+                    flex
+                    items-center
+                    gap-4
+                    px-6
+                    py-5
+                    hover:bg-blue-50
+                    duration-300
+                  "
                 >
-                  <button
-                    onClick={() => {
-                      setProfileDropdown(false);
-                      navigate("/admin-login");
-                    }}
-                    className="w-full flex items-center gap-3 px-6 py-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                  >
-                    <FaUserShield className="text-xl" />
-                    <span className="font-semibold">Admin</span>
-                  </button>
 
-                  <button
-                    onClick={() => {
-                      setProfileDropdown(false);
-                      navigate("/user-login");
-                    }}
-                    className="w-full flex items-center gap-3 px-6 py-4 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                  >
-                    <FaUser className="text-xl" />
-                    <span className="font-semibold">User</span>
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                  <FaUserShield
+                    className="
+                      text-[#0F52BA]
+                      text-xl
+                    "
+                  />
+
+                  <span className="font-semibold">
+                    Admin Login
+                  </span>
+
+                </button>
+
+                <button
+
+                  onClick={() => {
+
+                    setProfileDropdown(false);
+
+                    navigate("/user-login");
+
+                  }}
+
+                  className="
+                    w-full
+                    flex
+                    items-center
+                    gap-4
+                    px-6
+                    py-5
+                    hover:bg-red-50
+                    duration-300
+                  "
+                >
+
+                  <FaUser
+                    className="
+                      text-red-500
+                      text-xl
+                    "
+                  />
+
+                  <span className="font-semibold">
+                    User Login
+                  </span>
+
+                </button>
+
+              </motion.div>
+
+            )}
+
+          </AnimatePresence>
 
         </div>
 
-        {/* MOBILE ICON */}
+        {/* MOBILE MENU */}
 
         <button
           onClick={()=>setMenu(true)}
-          className="lg:hidden text-white text-3xl"
+          className="
+            lg:hidden
+            text-[#0F52BA]
+            text-3xl
+          "
         >
 
           <FaBars />
@@ -238,8 +488,6 @@ function Navbar() {
 
           <>
 
-            {/* OVERLAY */}
-
             <motion.div
 
               initial={{opacity:0}}
@@ -250,10 +498,13 @@ function Navbar() {
 
               onClick={()=>setMenu(false)}
 
-              className="fixed inset-0 bg-black/60 z-40"
+              className="
+                fixed
+                inset-0
+                bg-black/60
+                z-40
+              "
             />
-
-            {/* SIDEBAR */}
 
             <motion.div
 
@@ -265,32 +516,39 @@ function Navbar() {
 
               transition={{duration:0.4}}
 
-              className="fixed top-0 right-0 w-[300px] h-screen bg-white z-50 p-8 overflow-y-auto"
+              className="
+                fixed
+                top-0
+                right-0
+                w-[320px]
+                h-screen
+                bg-white
+                z-50
+                p-8
+                overflow-y-auto
+              "
             >
-
-              {/* TOP */}
 
               <div className="flex items-center justify-between">
 
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl font-black">
 
-                  <span className="text-blue-600">
-
+                  <span className="text-[#0F52BA]">
                     HASSLE
-
                   </span>
 
-                  <span className="text-yellow-400">
-
+                  <span className="text-red-500">
                     FREE
-
                   </span>
 
                 </h1>
 
                 <button
                   onClick={()=>setMenu(false)}
-                  className="text-gray-900 text-3xl"
+                  className="
+                    text-3xl
+                    text-gray-700
+                  "
                 >
 
                   <FaTimes />
@@ -299,127 +557,56 @@ function Navbar() {
 
               </div>
 
-              {/* LINKS */}
-
-              <ul className="flex flex-col gap-8 mt-16 text-gray-900 text-lg font-medium">
+              <ul
+                className="
+                  flex
+                  flex-col
+                  gap-8
+                  mt-16
+                  text-lg
+                  font-semibold
+                  text-[#0F52BA]
+                "
+              >
 
                 <Link to="/" onClick={()=>setMenu(false)}>
-                  <li className="text-red-500 hover:text-yellow-400 duration-300 font-bold">
+                  <li className="hover:text-red-500 duration-300">
                     Home
                   </li>
                 </Link>
 
                 <Link to="/countries" onClick={()=>setMenu(false)}>
-                  <li className="hover:text-yellow-400 duration-300">
+                  <li className="hover:text-red-500 duration-300">
                     Countries
                   </li>
                 </Link>
 
-
-                <button 
-                  onClick={() => {
-                    setMenu(false);
-                    if (isLoggedIn && userRole === "user") {
-                      navigate("/track-visa");
-                    } else if (isLoggedIn && userRole === "admin") {
-                      navigate("/admin-dashboard");
-                    } else {
-                      navigate("/user-login", { state: { from: { pathname: "/track-visa" } } });
-                    }
-                  }}
-                  className="hover:text-yellow-400 duration-300 text-left font-medium"
-                >
-                  Track Visa
-                </button>
-
                 <Link to="/about" onClick={()=>setMenu(false)}>
-                  <li className="hover:text-yellow-400 duration-300">
+                  <li className="hover:text-red-500 duration-300">
                     About
                   </li>
                 </Link>
 
                 <Link to="/contact" onClick={()=>setMenu(false)}>
-                  <li className="hover:text-yellow-400 duration-300">
+                  <li className="hover:text-red-500 duration-300">
                     Contact
                   </li>
                 </Link>
 
               </ul>
 
-              {/* MOBILE PROFILE */}
-
-              <div className="mt-12 space-y-4">
-
-                {!isLoggedIn ? (
-
-                  <div className="flex flex-col gap-4">
-                    <button
-                      onClick={() => {
-                        setMenu(false);
-                        navigate("/admin-login");
-                      }}
-                      className="w-full bg-blue-600 hover:bg-blue-700 duration-300 text-white py-4 rounded-2xl font-semibold flex items-center justify-center gap-3"
-                    >
-                      <FaUserShield /> Admin Login
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setMenu(false);
-                        navigate("/user-login");
-                      }}
-                      className="w-full bg-gray-100 hover:bg-gray-200 duration-300 text-gray-900 py-4 rounded-2xl font-semibold flex items-center justify-center gap-3"
-                    >
-                      <FaUser /> User Login
-                    </button>
-                  </div>
-
-                ): (
-
-                  <>
-
-                    <div className="bg-gray-50 border border-gray-100 rounded-3xl p-5">
-
-                      <h3 className="text-gray-900 text-xl font-semibold">
-
-                        Logged In
-
-                      </h3>
-
-                      <p className="text-gray-600 mt-2 capitalize">
-
-                        Role : {userRole}
-
-                      </p>
-
-                    </div>
-
-                    <button
-
-                      onClick={handleLogout}
-
-                      className="w-full bg-red-500 hover:bg-red-600 duration-300 text-white py-4 rounded-2xl font-semibold"
-                    >
-
-                      Logout
-
-                    </button>
-
-                  </>
-
-                )}
-
-              </div>
-
             </motion.div>
 
           </>
+
         )}
 
       </AnimatePresence>
 
     </nav>
+
   );
+
 }
 
 export default Navbar;
