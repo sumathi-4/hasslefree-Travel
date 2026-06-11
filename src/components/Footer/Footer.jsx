@@ -45,7 +45,7 @@ function Footer() {
 
               <span className="text-blue-600">HASSLE</span>
 
-              <span className="text-yellow-400">FREE</span>
+              <span className="text-red-500">FREE</span>
 
             </h1>
 

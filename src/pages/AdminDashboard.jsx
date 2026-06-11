@@ -3038,7 +3038,7 @@ Contact Email: ${item.email}
             <div>
               <h1 className="text-xl font-black tracking-tight flex items-center gap-1">
                 <span className="text-blue-600">HASSLE</span>
-                <span className={settingsData.themeMode === "Dark" ? "text-yellow-400" : "text-yellow-500"}>FREE</span>
+                <span className={settingsData.themeMode === "Dark" ? "text-red-500" : "text-red-500"}>FREE</span>
               </h1>
               <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">
                 Visa Management System
